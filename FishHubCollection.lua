@@ -1,5 +1,5 @@
 --[[
-    FishHub - Combined Script (Loading -> GetKey -> CheckGame [No Main])
+    FishHub - Combined Script (Loading -> GetKey -> CheckGame)
     Theme: Blue-Purple Gradient with transparency
 ]]
 
@@ -54,7 +54,7 @@ LoadingFrame.Name = "LoadingFrame"
 LoadingFrame.Size = UDim2.new(0, 360, 0, 220)
 LoadingFrame.Position = UDim2.new(0.5, -180, 0.5, -110)
 LoadingFrame.BackgroundColor3 = Color3.fromRGB(20, 15, 35)
-LoadingFrame.BackgroundTransparency = 0.15 -- Hơi trong suốt nhẹ
+LoadingFrame.BackgroundTransparency = 0.15
 LoadingFrame.BorderSizePixel = 0
 LoadingFrame.Parent = ScreenGui
 
@@ -98,7 +98,7 @@ local function finishLoadingAndShowGetKey()
         Blur:Destroy()
         ScreenGui:Destroy()
         pcall(function()
-            -- Đã cập nhật sang tên repo và cấu trúc file mới của bạn
+            -- Cập nhật URL CheckGame mới
             loadstring(game:HttpGet("https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/CheckGame.lua"))()
         end)
     else
@@ -130,7 +130,7 @@ function createGetKeyUI()
     GetKeyFrame.Size = UDim2.new(0, 420, 0, 260)
     GetKeyFrame.Position = UDim2.new(0.5, -210, 0.5, -130)
     GetKeyFrame.BackgroundColor3 = Color3.fromRGB(25, 18, 45)
-    GetKeyFrame.BackgroundTransparency = 0.15 -- Hơi trong suốt nhẹ
+    GetKeyFrame.BackgroundTransparency = 0.15
     GetKeyFrame.BorderSizePixel = 0
     GetKeyFrame.Parent = ScreenGui
     
@@ -229,7 +229,7 @@ function createGetKeyUI()
     SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     SubmitBtn.TextSize = 15
     SubmitBtn.Font = Enum.Font.GothamBold
-    SubmitBtn.Parent = GetKeyForm or GetKeyFrame
+    SubmitBtn.Parent = GetKeyFrame
     
     local SubmitCorner = Instance.new("UICorner")
     SubmitCorner.CornerRadius = UDim.new(0, 8)
@@ -260,7 +260,7 @@ function createGetKeyUI()
             ScreenGui:Destroy()
             
             pcall(function()
-                -- Đường dẫn gọi file Checking sau khi vượt key thành công
+                -- Cập nhật URL CheckGame mới sau khi vượt key thành công
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/CheckGame.lua"))()
             end)
         else
