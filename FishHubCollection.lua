@@ -261,7 +261,7 @@ function createGetKeyUI()
             
             pcall(function()
                 -- Đường dẫn gọi file Checking sau khi vượt key thành công
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/Checking.lua"))()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/CheckGame.lua"))()
             end)
         else
             SubmitBtn.Text = "Invalid Key! Please check again."
