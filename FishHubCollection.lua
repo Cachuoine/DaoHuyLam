@@ -99,7 +99,7 @@ local function finishLoadingAndShowGetKey()
         ScreenGui:Destroy()
         pcall(function()
             -- Đã cập nhật sang tên repo và cấu trúc file mới của bạn
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/Checking.lua"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/CheckGame.lua"))()
         end)
     else
         createGetKeyUI()
