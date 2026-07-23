@@ -1,5 +1,5 @@
 --[[
-    FishHub - Combined Script (Loading -> GetKey -> CheckGame) [FIREBASE INTEGRATED]
+    FishHub - Combined Script (Loading -> GetKey UI -> CheckGame)
     Theme: Blue-Purple Gradient with transparency
 ]]
 
@@ -9,10 +9,6 @@ local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
 local localPlayer = Players.LocalPlayer
 
--- URL Firebase của bạn
-local FIREBASE_URL = "https://fishhub-35d18-default-rtdb.firebaseio.com"
-
--- Kiểm tra xem đã có GUI cũ chưa để xóa
 if CoreGui:FindFirstChild("FishHub_System") then
     CoreGui.FishHub_System:Destroy()
 end
@@ -22,79 +18,14 @@ ScreenGui.Name = "FishHub_System"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Blur Background (Làm mờ màn hình)
 local Blur = Instance.new("BlurEffect")
 Blur.Size = 0
 Blur.Parent = game:GetService("Lighting")
 TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 15}):Play()
 
-----------------------------------------------------------------data local storage for key
-local function getSavedKey()
-    if writefile and readfile and pcall(readfile, "FishHub_Key.json") then
-        local success, data = pcall(function()
-            return HttpService:JSONDecode(readfile("FishHub_Key.json"))
-        end)
-        -- Firebase lưu expiry tính bằng mili-giây (milliseconds), so sánh với os.time() * 1000
-        if success and data and data.expiry and (os.time() * 1000) < data.expiry then
-            return data.key
-        end
-    end
-    return nil
-end
-
-local function saveKey(keyStr, expiryTimeMs)
-    if writefile then
-        local data = {
-            key = keyStr,
-            expiry = expiryTimeMs
-        }
-        pcall(function()
-            writefile("FishHub_Key.json", HttpService:JSONEncode(data))
-        end)
-    end
-end
-
 --------------------------------------------------------------------------------
--- PHẦN 1: LOADING UI
+-- HÀM LOAD SCRIPT CHÍNH (SAU KHI XÁC THỰC)
 --------------------------------------------------------------------------------
-local LoadingFrame = Instance.new("Frame")
-LoadingFrame.Name = "LoadingFrame"
-LoadingFrame.Size = UDim2.new(0, 360, 0, 220)
-LoadingFrame.Position = UDim2.new(0.5, -180, 0.5, -110)
-LoadingFrame.BackgroundColor3 = Color3.fromRGB(20, 15, 35)
-LoadingFrame.BackgroundTransparency = 0.15
-LoadingFrame.BorderSizePixel = 0
-LoadingFrame.Parent = ScreenGui
-
-local LoadingCorner = Instance.new("UICorner")
-LoadingCorner.CornerRadius = UDim.new(0, 16)
-LoadingCorner.Parent = LoadingFrame
-
-local LoadingStroke = Instance.new("UIStroke")
-LoadingStroke.Color = Color3.fromRGB(120, 80, 220)
-LoadingStroke.Thickness = 2
-LoadingStroke.Parent = LoadingFrame
-
--- Móc neo
-local AnchorIcon = Instance.new("TextLabel")
-AnchorIcon.Size = UDim2.new(0, 60, 0, 60)
-AnchorIcon.Position = UDim2.new(0.5, -30, 0.25, -30)
-AnchorIcon.BackgroundTransparency = 1
-AnchorIcon.Text = "⚓"
-AnchorIcon.TextSize = 40
-AnchorIcon.Parent = LoadingFrame
-
--- Loading Text
-local LoadingText = Instance.new("TextLabel")
-LoadingText.Size = UDim2.new(1, -40, 0, 40)
-LoadingText.Position = UDim2.new(0, 20, 0.65, 0)
-LoadingText.BackgroundTransparency = 1
-LoadingText.TextColor3 = Color3.fromRGB(220, 200, 255)
-LoadingText.TextSize = 16
-LoadingText.Font = Enum.Font.GothamBold
-LoadingText.Text = "Initializing FishHub System..."
-LoadingText.Parent = LoadingFrame
-
 local function loadMainScript()
     task.spawn(function()
         local success, result = pcall(function()
@@ -113,41 +44,10 @@ local function loadMainScript()
     end)
 end
 
-local function finishLoadingAndShowGetKey()
-    local shrinkTween = TweenService:Create(LoadingFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
-    shrinkTween:Play()
-    shrinkTween.Completed:Wait()
-    LoadingFrame:Destroy()
-    
-    local saved = getSavedKey()
-    if saved then
-        if Blur and Blur.Parent then Blur:Destroy() end
-        if ScreenGui and ScreenGui.Parent then ScreenGui:Destroy() end
-        loadMainScript()
-    else
-        createGetKeyUI()
-    end
-end
-
-task.spawn(function()
-    local tw = TweenService:Create(AnchorIcon, TweenInfo.new(1, Enum.EasingStyle.Linear), {Rotation = 360})
-    tw:Play()
-    tw.Completed:Wait()
-    
-    LoadingText.Text = "Loading security components..."
-    task.wait(0.7)
-    LoadingText.Text = "Verifying environment..."
-    task.wait(0.7)
-    LoadingText.Text = "Ready!"
-    task.wait(0.4)
-    
-    finishLoadingAndShowGetKey()
-end)
-
 --------------------------------------------------------------------------------
--- PHẦN 2: GETKEY UI (ĐÃ TÍCH HỢP FIREBASE)
+-- GIAO DIỆN GETKEY UI (NHẬP KEY ĐỂ VƯỢT QUA)
 --------------------------------------------------------------------------------
-function createGetKeyUI()
+local function createGetKeyUI()
     local GetKeyFrame = Instance.new("Frame")
     GetKeyFrame.Name = "GetKeyFrame"
     GetKeyFrame.Size = UDim2.new(0, 420, 0, 260)
@@ -166,7 +66,6 @@ function createGetKeyUI()
     GetKeyStroke.Thickness = 2
     GetKeyStroke.Parent = GetKeyFrame
 
-    -- Dấu nhân
     local CloseBtn = Instance.new("TextButton")
     CloseBtn.Size = UDim2.new(0, 30, 0, 30)
     CloseBtn.Position = UDim2.new(1, -38, 0, 8)
@@ -190,7 +89,6 @@ function createGetKeyUI()
         if ScreenGui and ScreenGui.Parent then ScreenGui:Destroy() end
     end)
 
-    -- Title
     local Title = Instance.new("TextLabel")
     Title.Size = UDim2.new(1, 0, 0, 50)
     Title.Position = UDim2.new(0, 0, 0, 10)
@@ -201,7 +99,6 @@ function createGetKeyUI()
     Title.Font = Enum.Font.GothamBold
     Title.Parent = GetKeyFrame
 
-    -- Link Button
     local LinkBtn = Instance.new("TextButton")
     LinkBtn.Size = UDim2.new(0, 360, 0, 35)
     LinkBtn.Position = UDim2.new(0.5, -180, 0, 70)
@@ -224,7 +121,6 @@ function createGetKeyUI()
         LinkBtn.Text = "Get Key from Website"
     end)
 
-    -- Key Input
     local KeyInput = Instance.new("TextBox")
     KeyInput.Size = UDim2.new(0, 360, 0, 45)
     KeyInput.Position = UDim2.new(0.5, -180, 0, 120)
@@ -242,7 +138,6 @@ function createGetKeyUI()
     InputCorner.CornerRadius = UDim.new(0, 8)
     InputCorner.Parent = KeyInput
 
-    -- Submit Button
     local SubmitBtn = Instance.new("TextButton")
     SubmitBtn.Size = UDim2.new(0, 360, 0, 40)
     SubmitBtn.Position = UDim2.new(0.5, -180, 0, 185)
@@ -258,71 +153,28 @@ function createGetKeyUI()
     SubmitCorner.CornerRadius = UDim.new(0, 8)
     SubmitCorner.Parent = SubmitBtn
 
+    -- PHẦN XỬ LÝ KIỂM TRA KEY KHI NHẤN NÚT
     SubmitBtn.MouseButton1Click:Connect(function()
-        local inputVal = KeyInput.Text
-        
-        if inputVal == "" then
-            SubmitBtn.Text = "Please enter your key!"
+        local enteredKey = KeyInput.Text
+        if enteredKey == "" then
+            SubmitBtn.Text = "Please enter a key!"
             task.wait(1.5)
             SubmitBtn.Text = "Verify Key"
             return
         end
 
-        SubmitBtn.Text = "Checking Database..."
-
-        -- 1. Kiểm tra mã Admin cứng dự phòng trước (để bạn luôn có quyền test nhanh)
-        if inputVal == "DaoHuyLam22052009" or inputVal == "DaoHuyHoang19102006" then
-            saveKey(inputVal, (os.time() * 1000) + 31536000000) -- Sống 1 năm
-            SubmitBtn.Text = "Admin Key Verified!"
-            
-            task.spawn(function()
-                task.wait(0.6)
-                local tw = TweenService:Create(GetKeyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
-                tw:Play()
-                tw.Completed:Wait()
-                if Blur and Blur.Parent then Blur:Destroy() end
-                if ScreenGui and ScreenGui.Parent then ScreenGui:Destroy() end
-                loadMainScript()
-            end)
-            return
-        end
-
-        -- 2. Kiểm tra key động thông qua Firebase Realtime Database của website
+        SubmitBtn.Text = "Checking..."
+        
+        -- Kiểm tra key trên Firebase Realtime Database
         task.spawn(function()
-            local success, response = pcall(function()
-                return request({
-                    Url = FIREBASE_URL .. "/keys.json",
-                    Method = "GET"
-                })
+            local success, res = pcall(function()
+                return game:HttpGet("https://fishhubnew-default-rtdb.firebaseio.com/keys/" .. enteredKey .. ".json")
             end)
 
-            local isValid = false
-            local matchedExpiry = 0
-
-            if success and response and response.StatusCode == 200 then
-                if response.Body and response.Body ~= "null" then
-                    local data = HttpService:JSONDecode(response.Body)
-                    if type(data) == "table" then
-                        -- Duyệt qua các bản ghi key được tạo từ trang web
-                        for _, item in pairs(data) do
-                            if type(item) == "table" and item.key == inputVal then
-                                -- Kiểm tra thời hạn tính bằng mili-giây với thời gian hiện tại
-                                if item.expiry and (os.time() * 1000) < item.expiry then
-                                    isValid = true
-                                    matchedExpiry = item.expiry
-                                end
-                                break
-                            end
-                        end
-                    end
-                end
-            end
-
-            if isValid then
-                saveKey(inputVal, matchedExpiry)
-                SubmitBtn.Text = "Key Verified Successfully!"
+            if success and res and res ~= "null" then
+                SubmitBtn.Text = "Success!"
+                task.wait(0.4)
                 
-                task.wait(0.6)
                 local tw = TweenService:Create(GetKeyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
                 tw:Play()
                 tw.Completed:Wait()
@@ -332,10 +184,73 @@ function createGetKeyUI()
                 
                 loadMainScript()
             else
-                SubmitBtn.Text = "Invalid or Expired Key!"
+                SubmitBtn.Text = "Invalid Key!"
                 task.wait(1.5)
                 SubmitBtn.Text = "Verify Key"
             end
         end)
     end)
 end
+
+--------------------------------------------------------------------------------
+-- PHẦN 1: LOADING UI
+--------------------------------------------------------------------------------
+local LoadingFrame = Instance.new("Frame")
+LoadingFrame.Name = "LoadingFrame"
+LoadingFrame.Size = UDim2.new(0, 360, 0, 220)
+LoadingFrame.Position = UDim2.new(0.5, -180, 0.5, -110)
+LoadingFrame.BackgroundColor3 = Color3.fromRGB(20, 15, 35)
+LoadingFrame.BackgroundTransparency = 0.15
+LoadingFrame.BorderSizePixel = 0
+LoadingFrame.Parent = ScreenGui
+
+local LoadingCorner = Instance.new("UICorner")
+LoadingCorner.CornerRadius = UDim.new(0, 16)
+LoadingCorner.Parent = LoadingFrame
+
+local LoadingStroke = Instance.new("UIStroke")
+LoadingStroke.Color = Color3.fromRGB(120, 80, 220)
+LoadingStroke.Thickness = 2
+LoadingStroke.Parent = LoadingFrame
+
+local AnchorIcon = Instance.new("TextLabel")
+AnchorIcon.Size = UDim2.new(0, 60, 0, 60)
+AnchorIcon.Position = UDim2.new(0.5, -30, 0.25, -30)
+AnchorIcon.BackgroundTransparency = 1
+AnchorIcon.Text = "⚓"
+AnchorIcon.TextSize = 40
+AnchorIcon.Parent = LoadingFrame
+
+local LoadingText = Instance.new("TextLabel")
+LoadingText.Size = UDim2.new(1, -40, 0, 40)
+LoadingText.Position = UDim2.new(0, 20, 0.65, 0)
+LoadingText.BackgroundTransparency = 1
+LoadingText.TextColor3 = Color3.fromRGB(220, 200, 255)
+LoadingText.TextSize = 16
+LoadingText.Font = Enum.Font.GothamBold
+LoadingText.Text = "Initializing FishHub System..."
+LoadingText.Parent = LoadingFrame
+
+local function finishLoadingAndShowGetKey()
+    local shrinkTween = TweenService:Create(LoadingFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
+    shrinkTween:Play()
+    shrinkTween.Completed:Wait()
+    LoadingFrame:Destroy()
+    
+    createGetKeyUI()
+end
+
+task.spawn(function()
+    local tw = TweenService:Create(AnchorIcon, TweenInfo.new(1, Enum.EasingStyle.Linear), {Rotation = 360})
+    tw:Play()
+    tw.Completed:Wait()
+    
+    LoadingText.Text = "Loading security components..."
+    task.wait(0.7)
+    LoadingText.Text = "Verifying environment..."
+    task.wait(0.7)
+    LoadingText.Text = "Ready!"
+    task.wait(0.4)
+    
+    finishLoadingAndShowGetKey()
+end)
