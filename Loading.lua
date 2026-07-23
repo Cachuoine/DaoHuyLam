@@ -1,6 +1,6 @@
 --[[
-    FishHub - Combined Script (Loading -> GetKey -> CheckGame)
-    Theme: Blue-Purple Gradient with transparency (Integrated Firebase Key System)
+    FishHub - Combined Script (Loading -> GetKey -> CheckGame) [FIREBASE INTEGRATED]
+    Theme: Blue-Purple Gradient with transparency
 ]]
 
 local CoreGui = game:GetService("CoreGui")
@@ -9,7 +9,7 @@ local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
 local localPlayer = Players.LocalPlayer
 
--- Cấu hình Firebase URL của bạn
+-- URL Firebase của bạn
 local FIREBASE_URL = "https://fishhub-35d18-default-rtdb.firebaseio.com"
 
 -- Kiểm tra xem đã có GUI cũ chưa để xóa
@@ -34,7 +34,7 @@ local function getSavedKey()
         local success, data = pcall(function()
             return HttpService:JSONDecode(readfile("FishHub_Key.json"))
         end)
-        -- Firebase lưu expiry tính bằng mili-giây (milliseconds), nên so sánh với os.time() * 1000
+        -- Firebase lưu expiry tính bằng mili-giây (milliseconds), so sánh với os.time() * 1000
         if success and data and data.expiry and (os.time() * 1000) < data.expiry then
             return data.key
         end
@@ -48,7 +48,9 @@ local function saveKey(keyStr, expiryTimeMs)
             key = keyStr,
             expiry = expiryTimeMs
         }
-        writefile("FishHub_Key.json", HttpService:JSONEncode(data))
+        pcall(function()
+            writefile("FishHub_Key.json", HttpService:JSONEncode(data))
+        end)
     end
 end
 
@@ -93,6 +95,24 @@ LoadingText.Font = Enum.Font.GothamBold
 LoadingText.Text = "Initializing FishHub System..."
 LoadingText.Parent = LoadingFrame
 
+local function loadMainScript()
+    task.spawn(function()
+        local success, result = pcall(function()
+            return game:HttpGet("https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/CheckGame.lua")
+        end)
+        if success and result then
+            local fn, err = loadstring(result)
+            if fn then
+                pcall(fn)
+            else
+                warn("Loadstring error: " .. tostring(err))
+            end
+        else
+            warn("Failed to fetch CheckGame.lua")
+        end
+    end)
+end
+
 local function finishLoadingAndShowGetKey()
     local shrinkTween = TweenService:Create(LoadingFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
     shrinkTween:Play()
@@ -101,11 +121,9 @@ local function finishLoadingAndShowGetKey()
     
     local saved = getSavedKey()
     if saved then
-        Blur:Destroy()
-        ScreenGui:Destroy()
-        pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/CheckGame.lua"))()
-        end)
+        if Blur and Blur.Parent then Blur:Destroy() end
+        if ScreenGui and ScreenGui.Parent then ScreenGui:Destroy() end
+        loadMainScript()
     else
         createGetKeyUI()
     end
@@ -127,7 +145,7 @@ task.spawn(function()
 end)
 
 --------------------------------------------------------------------------------
--- PHẦN 2: GETKEY UI (Tích hợp xác thực Firebase Realtime Database)
+-- PHẦN 2: GETKEY UI (ĐÃ TÍCH HỢP FIREBASE)
 --------------------------------------------------------------------------------
 function createGetKeyUI()
     local GetKeyFrame = Instance.new("Frame")
@@ -168,8 +186,8 @@ function createGetKeyUI()
         local tw = TweenService:Create(GetKeyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
         tw:Play()
         tw.Completed:Wait()
-        Blur:Destroy()
-        ScreenGui:Destroy()
+        if Blur and Blur.Parent then Blur:Destroy() end
+        if ScreenGui and ScreenGui.Parent then ScreenGui:Destroy() end
     end)
 
     -- Title
@@ -250,67 +268,74 @@ function createGetKeyUI()
             return
         end
 
-        SubmitBtn.Text = "Checking Firebase..."
+        SubmitBtn.Text = "Checking Database..."
 
-        -- Cho phép mã admin cứng dự phòng
+        -- 1. Kiểm tra mã Admin cứng dự phòng trước (để bạn luôn có quyền test nhanh)
         if inputVal == "DaoHuyLam22052009" or inputVal == "DaoHuyHoang19102006" then
-            saveKey(inputVal, (os.time() * 1000) + 31536000000)
+            saveKey(inputVal, (os.time() * 1000) + 31536000000) -- Sống 1 năm
             SubmitBtn.Text = "Admin Key Verified!"
-            task.wait(0.8)
-            finishVerificationAndLoadGame()
+            
+            task.spawn(function()
+                task.wait(0.6)
+                local tw = TweenService:Create(GetKeyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
+                tw:Play()
+                tw.Completed:Wait()
+                if Blur and Blur.Parent then Blur:Destroy() end
+                if ScreenGui and ScreenGui.Parent then ScreenGui:Destroy() end
+                loadMainScript()
+            end)
             return
         end
 
-        -- Gửi request GET lên Firebase để tìm kiếm key khớp với dữ liệu trên web đẩy lên
-        local success, response = pcall(function()
-            return request({
-                Url = FIREBASE_URL .. "/keys.json",
-                Method = "GET"
-            })
-        end)
+        -- 2. Kiểm tra key động thông qua Firebase Realtime Database của website
+        task.spawn(function()
+            local success, response = pcall(function()
+                return request({
+                    Url = FIREBASE_URL .. "/keys.json",
+                    Method = "GET"
+                })
+            end)
 
-        local isValid = false
-        local matchedExpiry = 0
+            local isValid = false
+            local matchedExpiry = 0
 
-        if success and response and response.StatusCode == 200 then
-            if response.Body and response.Body ~= "null" then
-                local data = HttpService:JSONDecode(response.Body)
-                if type(data) == "table" then
-                    for _, item in pairs(data) do
-                        if type(item) == "table" and item.key == inputVal then
-                            -- Kiểm tra thời hạn (expiry trên web tính bằng mili-giây)
-                            if item.expiry and (os.time() * 1000) < item.expiry then
-                                isValid = true
-                                matchedExpiry = item.expiry
+            if success and response and response.StatusCode == 200 then
+                if response.Body and response.Body ~= "null" then
+                    local data = HttpService:JSONDecode(response.Body)
+                    if type(data) == "table" then
+                        -- Duyệt qua các bản ghi key được tạo từ trang web
+                        for _, item in pairs(data) do
+                            if type(item) == "table" and item.key == inputVal then
+                                -- Kiểm tra thời hạn tính bằng mili-giây với thời gian hiện tại
+                                if item.expiry and (os.time() * 1000) < item.expiry then
+                                    isValid = true
+                                    matchedExpiry = item.expiry
+                                end
+                                break
                             end
-                            break
                         end
                     end
                 end
             end
-        end
 
-        if isValid then
-            saveKey(inputVal, matchedExpiry)
-            SubmitBtn.Text = "Key Verified Successfully!"
-            task.wait(0.8)
-            finishVerificationAndLoadGame()
-        else
-            SubmitBtn.Text = "Invalid or Expired Key!"
-            task.wait(1.5)
-            SubmitBtn.Text = "Verify Key"
-        end
-    end)
-end
-
-function finishVerificationAndLoadGame()
-    local tw = TweenService:Create(GetKeyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
-    tw:Play()
-    tw.Completed:Wait()
-    Blur:Destroy()
-    ScreenGui:Destroy()
-    
-    pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/CheckGame.lua"))()
+            if isValid then
+                saveKey(inputVal, matchedExpiry)
+                SubmitBtn.Text = "Key Verified Successfully!"
+                
+                task.wait(0.6)
+                local tw = TweenService:Create(GetKeyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
+                tw:Play()
+                tw.Completed:Wait()
+                
+                if Blur and Blur.Parent then Blur:Destroy() end
+                if ScreenGui and ScreenGui.Parent then ScreenGui:Destroy() end
+                
+                loadMainScript()
+            else
+                SubmitBtn.Text = "Invalid or Expired Key!"
+                task.wait(1.5)
+                SubmitBtn.Text = "Verify Key"
+            end
+        end)
     end)
 end
