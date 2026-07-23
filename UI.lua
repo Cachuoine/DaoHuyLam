@@ -1,4 +1,3 @@
--- FishHub - Phiên bản tích hợp tự động hủy khi hết hạn Key 24h
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -58,46 +57,15 @@ local CurrentPlaceId = game.PlaceId
 -- ĐỌC DỮ LIỆU KEY TỪ PHẦN GETKEY (FishHub_Key.json)
 ----------------------------------------------------------------------
 local SavedKey = ""
-local KeyExpirationTimestamp = 0
 
 if readfile and isfile and isfile("FishHub_Key.json") then
     pcall(function()
         local data = HttpService:JSONDecode(readfile("FishHub_Key.json"))
         if data then
             SavedKey = data.key or ""
-            KeyExpirationTimestamp = data.expiry or 0
         end
     end)
 end
-
-----------------------------------------------------------------------
--- KIỂM TRA HIỆU LỰC KEY (TỰ ĐỘNG KẾT THÚC KHI HẾT HẠN 24H)
-----------------------------------------------------------------------
-task.spawn(function()
-    while true do
-        -- Bỏ qua nếu là Admin đặc quyền
-        if SavedKey ~= "DaoHuyLam22052009" and SavedKey ~= "DaoHuyHoang19102006" then
-            if KeyExpirationTimestamp > 0 then
-                local remainingSeconds = KeyExpirationTimestamp - os.time()
-                
-                -- Nếu thời gian hết hạn (<= 0)
-                if remainingSeconds <= 0 then
-                    pcall(function()
-                        if delfile and isfile("FishHub_Key.json") then
-                            delfile("FishHub_Key.json")
-                        end
-                    end)
-                    
-                    if PlayerGui:FindFirstChild("FishHub") then
-                        PlayerGui.FishHub:Destroy()
-                    end
-                    break
-                end
-            end
-        end
-        task.wait(5) -- Kiểm tra lại mỗi 5 giây
-    end
-end)
 
 ----------------------------------------------------------------------
 -- CẤU HÌNH & CONFIG UI
@@ -1439,8 +1407,8 @@ local SettingBtn = CreateSideButton("Setting", 110, "rbxassetid://99627454901549
 debugSidebarFrame = Instance.new("Frame")
 debugSidebarFrame.Name = "DebugSidebar"
 debugSidebarFrame.Parent = sidebar
-debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
-debugSidebarFrame.Position = UDim2.new(0, 5, 1, -162)
+debugSidebarFrame.Size = UDim2.new(1, -10, 0, 74)
+debugSidebarFrame.Position = UDim2.new(0, 5, 1, -142)
 debugSidebarFrame.BackgroundColor3 = Config.BgCard
 debugSidebarFrame.BackgroundTransparency = 0
 debugSidebarFrame.BorderSizePixel = 0
@@ -1577,45 +1545,13 @@ task.spawn(function()
             local time24h = os.date("%H:%M:%S")
             local playerCount = #Players:GetPlayers()
             local maxPlayers = Players.MaxPlayers
-            local keyStatus = ""
-            local isAdmin = false
 
-            if SavedKey == "DaoHuyLam22052009" or SavedKey == "DaoHuyHoang19102006" then
-                keyStatus = "<font color='#FFDF00'>👑 Admin</font>"
-                isAdmin = true
-            elseif KeyExpirationTimestamp == 0 then
-                keyStatus = "<font color='#AAAAAA'>No Key</font>"
-            else
-                local remainingSeconds = KeyExpirationTimestamp - os.time()
-                if remainingSeconds <= 0 then
-                    keyStatus = "<font color='#FF4B4B'>Expired</font>"
-                else
-                    local hours = math.floor(remainingSeconds / 3600)
-                    local mins = math.floor((remainingSeconds % 3600) / 60)
-                    local secs = remainingSeconds % 60
-                    keyStatus = string.format("<font color='#50D74B'>%02dh %02dm %02ds</font>", hours, mins, secs)
-                end
-            end
-
-            if isAdmin then
-                debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
-                debugSidebarText.Text = string.format(
-                    "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
-                    "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
-                    "🕒 <b>TIME:</b> %s\n" ..
-                    "🔑 <b>KEY EXP:</b>\n   └ %s",
-                    currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
-                )
-            else
-                debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
-                debugSidebarText.Text = string.format(
-                    "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
-                    "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
-                    "🕒 <b>TIME:</b> %s\n" ..
-                    "🔑 <b>KEY EXP:</b>\n   └ %s",
-                    currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
-                )
-            end
+            debugSidebarText.Text = string.format(
+                "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
+                "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
+                "🕒 <b>TIME:</b> %s",
+                currentFps, ping, playerCount, maxPlayers, time24h
+            )
         end
         task.wait(0.5)
     end
