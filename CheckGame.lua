@@ -5,6 +5,9 @@
 
 local SUPPORTED_GAMES = {
     [134381727982611] = "https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/Evomon.lua",
+    [2753915549] = "https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/Bloxfruit.lua",
+    [4442272183] = "https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/Bloxfruit.lua",
+    [7449423635] = "https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/Bloxfruit.lua",
 }
 
 local currentPlaceId = game.PlaceId
