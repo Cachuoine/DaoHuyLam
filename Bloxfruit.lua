@@ -1,5 +1,5 @@
--- [ĐÃ CẬP NHẬT] Giao diện FishHub (bloxfruit.lua) được đồng bộ hoàn toàn với UI
--- Giữ nguyên trọn vẹn danh sách script Blox Fruits và chức năng Home tùy chỉnh.
+-- [ĐÃ CẬP NHẬT] Giao diện FishHub (bloxfruit.lua) được đồng bộ hoàn toàn với UI.lua
+-- Giữ nguyên trọn vẹn danh sách script Blox Fruits và chức năng Home tùy chỉnh ở phiên bản cũ.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -1587,8 +1587,8 @@ local SettingBtn = CreateSideButton("Setting", 110, "rbxassetid://99627454901549
 debugSidebarFrame = Instance.new("Frame")
 debugSidebarFrame.Name = "DebugSidebar"
 debugSidebarFrame.Parent = sidebar
-debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
-debugSidebarFrame.Position = UDim2.new(0, 5, 1, -162)
+debugSidebarFrame.Size = UDim2.new(1, -10, 0, 74)
+debugSidebarFrame.Position = UDim2.new(0, 5, 1, -142)
 debugSidebarFrame.BackgroundColor3 = Config.BgCard
 debugSidebarFrame.BackgroundTransparency = 0
 debugSidebarFrame.BorderSizePixel = 0
@@ -1725,45 +1725,13 @@ task.spawn(function()
             local time24h = os.date("%H:%M:%S")
             local playerCount = #Players:GetPlayers()
             local maxPlayers = Players.MaxPlayers
-            local keyStatus = ""
-            local isAdmin = false
 
-            if SavedKey == "DaoHuyLam22052009" or SavedKey == "DaoHuyHoang19102006" then
-                keyStatus = "<font color='#FFDF00'>👑 Admin</font>"
-                isAdmin = true
-            elseif KeyExpirationTimestamp == 0 then
-                keyStatus = "<font color='#AAAAAA'>No Key</font>"
-            else
-                local remainingSeconds = KeyExpirationTimestamp - os.time()
-                if remainingSeconds <= 0 then
-                    keyStatus = "<font color='#FF4B4B'>Expired</font>"
-                else
-                    local hours = math.floor(remainingSeconds / 3600)
-                    local mins = math.floor((remainingSeconds % 3600) / 60)
-                    local secs = remainingSeconds % 60
-                    keyStatus = string.format("<font color='#50D74B'>%02dh %02dm %02ds</font>", hours, mins, secs)
-                end
-            end
-
-            if isAdmin then
-                debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
-                debugSidebarText.Text = string.format(
-                    "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
-                    "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
-                    "🕒 <b>TIME:</b> %s\n" ..
-                    "🔑 <b>KEY EXP:</b>\n   └ %s",
-                    currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
-                )
-            else
-                debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
-                debugSidebarText.Text = string.format(
-                    "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
-                    "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
-                    "🕒 <b>TIME:</b> %s\n" ..
-                    "🔑 <b>KEY EXP:</b>\n   └ %s",
-                    currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
-                )
-            end
+            debugSidebarText.Text = string.format(
+                "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
+                "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
+                "🕒 <b>TIME:</b> %s",
+                currentFps, ping, playerCount, maxPlayers, time24h
+            )
         end
         task.wait(0.5)
     end
