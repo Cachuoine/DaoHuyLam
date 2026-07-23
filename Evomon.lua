@@ -1,3 +1,4 @@
+-- FishHub - Phiên bản tích hợp tự động hủy khi hết hạn Key 24h & Giao diện Evomon chuẩn UI
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -19,7 +20,7 @@ if PlayerGui:FindFirstChild("FishHub") then
 end
 
 ----------------------------------------------------------------------
--- DANH SÁCH GAME HỖ TRỢ THEO THỂ LOẠI (ĐÃ CHUYỂN HAZE SANG ANIME & RPG)
+-- DANH SÁCH GAME HỖ TRỢ THEO THỂ LOẠI
 ----------------------------------------------------------------------
 local SupportedCategories = {
     {
@@ -68,6 +69,31 @@ if readfile and isfile and isfile("FishHub_Key.json") then
         end
     end)
 end
+
+----------------------------------------------------------------------
+-- KIỂM TRA HIỆU LỰC KEY (TỰ ĐỘNG KẾT THÚC KHI HẾT HẠN 24H)
+----------------------------------------------------------------------
+task.spawn(function()
+    while true do
+        if SavedKey ~= "DaoHuyLam22052009" and SavedKey ~= "DaoHuyHoang19102006" then
+            if KeyExpirationTimestamp > 0 then
+                local remainingSeconds = KeyExpirationTimestamp - os.time()
+                if remainingSeconds <= 0 then
+                    pcall(function()
+                        if delfile and isfile("FishHub_Key.json") then
+                            delfile("FishHub_Key.json")
+                        end
+                    end)
+                    if PlayerGui:FindFirstChild("FishHub") then
+                        PlayerGui.FishHub:Destroy()
+                    end
+                    break
+                end
+            end
+        end
+        task.wait(5)
+    end
+end)
 
 ----------------------------------------------------------------------
 -- CẤU HÌNH & CONFIG UI
@@ -442,9 +468,9 @@ task.spawn(function()
         local creHex = ColorToHex(Config.MarqueeCreColor)
         
         if MarqueeExtraConfig.UseRainbowText then
-            local r1, g1, b1 = Color3.toHSV(Color3.fromHSV(rainbowHue, 1, 1))
-            local r2, g2, b2 = Color3.toHSV(Color3.fromHSV((rainbowHue + 0.33) % 1, 1, 1))
-            local r3, g3, b3 = Color3.toHSV(Color3.fromHSV((rainbowHue + 0.66) % 1, 1, 1))
+            local r1, _, _ = Color3.toHSV(Color3.fromHSV(rainbowHue, 1, 1))
+            local r2, _, _ = Color3.toHSV(Color3.fromHSV((rainbowHue + 0.33) % 1, 1, 1))
+            local r3, _, _ = Color3.toHSV(Color3.fromHSV((rainbowHue + 0.66) % 1, 1, 1))
             
             userHex = ColorToHex(Color3.fromHSV(r1, 1, 1))
             execHex = ColorToHex(Color3.fromHSV(r2, 1, 1))
@@ -518,7 +544,7 @@ local function ClearContent()
 end
 
 ----------------------------------------------------------------------
--- PHẦN TRANG CHỦ (HOME) - GIỮ NGUYÊN CHỨC NĂNG SCRIPT EVOMON
+-- PHẦN TRANG CHỦ (HOME) - TÍCH HỢP CHỨC NĂNG SCRIPT EVOMON
 ----------------------------------------------------------------------
 OpenHome = function()
     ClearContent()
@@ -558,7 +584,7 @@ OpenHome = function()
         { Name = "Nasi Rendang Evomon", Url = "https://raw.githubusercontent.com/JualNasiRendang/nasirendang-evomon/main/nasirendang-evomon.lua" },
     }
 
-    for index, data in ipairs(scriptList) do
+    for _, data in ipairs(scriptList) do
         local btnCard = Instance.new("TextButton")
         btnCard.Parent = scrollHolder
         btnCard.Size = UDim2.new(1, -10, 0, 42)
@@ -601,6 +627,15 @@ OpenHome = function()
         circleGreen.BorderSizePixel = 0
         Instance.new("UICorner", circleGreen).CornerRadius = UDim.new(1, 0)
 
+        task.spawn(function()
+            while circleGreen and circleGreen.Parent do
+                TweenService:Create(circleGreen, TweenInfo.new(0.6), {BackgroundTransparency = 0.2}):Play()
+                task.wait(0.6)
+                TweenService:Create(circleGreen, TweenInfo.new(0.6), {BackgroundTransparency = 0.8}):Play()
+                task.wait(0.6)
+            end
+        end)
+
         local badgeText = Instance.new("TextLabel")
         badgeText.Parent = badge
         badgeText.Size = UDim2.new(1, -18, 1, 0)
@@ -611,15 +646,6 @@ OpenHome = function()
         badgeText.TextSize = 9
         badgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
         badgeText.TextXAlignment = Enum.TextXAlignment.Center
-
-        task.spawn(function()
-            while badge and badge.Parent do
-                TweenService:Create(circleGreen, TweenInfo.new(0.6), {BackgroundTransparency = 0.2}):Play()
-                task.wait(0.6)
-                TweenService:Create(circleGreen, TweenInfo.new(0.6), {BackgroundTransparency = 0.8}):Play()
-                task.wait(0.6)
-            end
-        end)
 
         btnCard.MouseEnter:Connect(function()
             TweenService:Create(btnCard, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
@@ -657,7 +683,7 @@ OpenHome = function()
 end
 
 ----------------------------------------------------------------------
--- PHẦN SUPPORT GAME (ĐÃ XÓA HOÀN TOÀN ICON)
+-- PHẦN SUPPORT GAME
 ----------------------------------------------------------------------
 OpenSupport = function()
     ClearContent()
@@ -824,6 +850,15 @@ OpenSupport = function()
             circleGreenRed.BackgroundColor3 = isWorking and Color3.fromRGB(50, 230, 80) or Color3.fromRGB(230, 50, 50)
             circleGreenRed.BorderSizePixel = 0
             Instance.new("UICorner", circleGreenRed).CornerRadius = UDim.new(1, 0)
+
+            task.spawn(function()
+                while circleGreenRed and circleGreenRed.Parent do
+                    TweenService:Create(circleGreenRed, TweenInfo.new(0.6), {BackgroundTransparency = 0.2}):Play()
+                    task.wait(0.6)
+                    TweenService:Create(circleGreenRed, TweenInfo.new(0.6), {BackgroundTransparency = 0.8}):Play()
+                    task.wait(0.6)
+                end
+            end)
 
             local badgeText = Instance.new("TextLabel")
             badgeText.Parent = badge
@@ -1534,7 +1569,7 @@ local SettingBtn = CreateSideButton("Setting", 110, "rbxassetid://99627454901549
 ----------------------------------------------------------------------
 -- DEBUG OVERLAY
 ----------------------------------------------------------------------
-debugSidebarFrame = Instance.new("Frame")
+local debugSidebarFrame = Instance.new("Frame")
 debugSidebarFrame.Name = "DebugSidebar"
 debugSidebarFrame.Parent = sidebar
 debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
@@ -1566,7 +1601,7 @@ debugSidebarText.RichText = true
 ----------------------------------------------------------------------
 -- KEY STATUS
 ----------------------------------------------------------------------
-keyStatusSidebarFrame = Instance.new("Frame")
+local keyStatusSidebarFrame = Instance.new("Frame")
 keyStatusSidebarFrame.Name = "KeyStatusSidebar"
 keyStatusSidebarFrame.Parent = sidebar
 keyStatusSidebarFrame.Size = UDim2.new(1, -16, 0, 54)
@@ -1695,25 +1730,14 @@ task.spawn(function()
                 end
             end
 
-            if isAdmin then
-                debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
-                debugSidebarText.Text = string.format(
-                    "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
-                    "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
-                    "🕒 <b>TIME:</b> %s\n" ..
-                    "🔑 <b>KEY EXP:</b>\n   └ %s",
-                    currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
-                )
-            else
-                debugSidebarFrame.Size = UDim2.new(1, -10, 0, 84)
-                debugSidebarText.Text = string.format(
-                    "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
-                    "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
-                    "🕒 <b>TIME:</b> %s\n" ..
-                    "🔑 <b>KEY:</b> %s",
-                    currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
-                )
-            end
+            debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
+            debugSidebarText.Text = string.format(
+                "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
+                "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
+                "🕒 <b>TIME:</b> %s\n" ..
+                "🔑 <b>KEY EXP:</b>\n   └ %s",
+                currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
+            )
         end
         task.wait(0.5)
     end
