@@ -1,5 +1,5 @@
 --[[
-    FishHub - Combined Script (Loading -> GetKey -> CheckGame) [FIXED]
+    FishHub - Combined Script (Loading -> GetKey -> CheckGame) [FIREBASE INTEGRATED]
     Theme: Blue-Purple Gradient with transparency
 ]]
 
@@ -8,6 +8,9 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
 local localPlayer = Players.LocalPlayer
+
+-- URL Firebase của bạn
+local FIREBASE_URL = "https://fishhub-35d18-default-rtdb.firebaseio.com"
 
 -- Kiểm tra xem đã có GUI cũ chưa để xóa
 if CoreGui:FindFirstChild("FishHub_System") then
@@ -31,18 +34,19 @@ local function getSavedKey()
         local success, data = pcall(function()
             return HttpService:JSONDecode(readfile("FishHub_Key.json"))
         end)
-        if success and data and data.expiry and os.time() < data.expiry then
+        -- Firebase lưu expiry tính bằng mili-giây (milliseconds), so sánh với os.time() * 1000
+        if success and data and data.expiry and (os.time() * 1000) < data.expiry then
             return data.key
         end
     end
     return nil
 end
 
-local function saveKey(keyStr, duration)
+local function saveKey(keyStr, expiryTimeMs)
     if writefile then
         local data = {
             key = keyStr,
-            expiry = os.time() + duration
+            expiry = expiryTimeMs
         }
         pcall(function()
             writefile("FishHub_Key.json", HttpService:JSONEncode(data))
@@ -141,7 +145,7 @@ task.spawn(function()
 end)
 
 --------------------------------------------------------------------------------
--- PHẦN 2: GETKEY UI
+-- PHẦN 2: GETKEY UI (ĐÃ TÍCH HỢP FIREBASE)
 --------------------------------------------------------------------------------
 function createGetKeyUI()
     local GetKeyFrame = Instance.new("Frame")
@@ -256,23 +260,68 @@ function createGetKeyUI()
 
     SubmitBtn.MouseButton1Click:Connect(function()
         local inputVal = KeyInput.Text
-        local isValid = false
-        local duration = 86400
-
-        if inputVal == "DaoHuyLam22052009" or inputVal == "DaoHuyHoang19102006" then
-            isValid = true
-            duration = 31536000
-        elseif string.sub(inputVal, 1, 8) == "FishHub-" then
-            isValid = true
-            duration = 86400
+        
+        if inputVal == "" then
+            SubmitBtn.Text = "Please enter your key!"
+            task.wait(1.5)
+            SubmitBtn.Text = "Verify Key"
+            return
         end
 
-        if isValid then
-            saveKey(inputVal, duration)
-            SubmitBtn.Text = "Key Verified Successfully!"
+        SubmitBtn.Text = "Checking Database..."
+
+        -- 1. Kiểm tra mã Admin cứng dự phòng trước (để bạn luôn có quyền test nhanh)
+        if inputVal == "DaoHuyLam22052009" or inputVal == "DaoHuyHoang19102006" then
+            saveKey(inputVal, (os.time() * 1000) + 31536000000) -- Sống 1 năm
+            SubmitBtn.Text = "Admin Key Verified!"
             
-            -- Sử dụng task.spawn để tách luồng xóa UI và load script, chống đứng hình game
             task.spawn(function()
+                task.wait(0.6)
+                local tw = TweenService:Create(GetKeyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
+                tw:Play()
+                tw.Completed:Wait()
+                if Blur and Blur.Parent then Blur:Destroy() end
+                if ScreenGui and ScreenGui.Parent then ScreenGui:Destroy() end
+                loadMainScript()
+            end)
+            return
+        end
+
+        -- 2. Kiểm tra key động thông qua Firebase Realtime Database của website
+        task.spawn(function()
+            local success, response = pcall(function()
+                return request({
+                    Url = FIREBASE_URL .. "/keys.json",
+                    Method = "GET"
+                })
+            end)
+
+            local isValid = false
+            local matchedExpiry = 0
+
+            if success and response and response.StatusCode == 200 then
+                if response.Body and response.Body ~= "null" then
+                    local data = HttpService:JSONDecode(response.Body)
+                    if type(data) == "table" then
+                        -- Duyệt qua các bản ghi key được tạo từ trang web
+                        for _, item in pairs(data) do
+                            if type(item) == "table" and item.key == inputVal then
+                                -- Kiểm tra thời hạn tính bằng mili-giây với thời gian hiện tại
+                                if item.expiry and (os.time() * 1000) < item.expiry then
+                                    isValid = true
+                                    matchedExpiry = item.expiry
+                                end
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+
+            if isValid then
+                saveKey(inputVal, matchedExpiry)
+                SubmitBtn.Text = "Key Verified Successfully!"
+                
                 task.wait(0.6)
                 local tw = TweenService:Create(GetKeyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
                 tw:Play()
@@ -281,13 +330,12 @@ function createGetKeyUI()
                 if Blur and Blur.Parent then Blur:Destroy() end
                 if ScreenGui and ScreenGui.Parent then ScreenGui:Destroy() end
                 
-                -- Thực thi load script chính an toàn
                 loadMainScript()
-            end)
-        else
-            SubmitBtn.Text = "Invalid Key! Please check again."
-            task.wait(1.5)
-            SubmitBtn.Text = "Verify Key"
-        end
+            else
+                SubmitBtn.Text = "Invalid or Expired Key!"
+                task.wait(1.5)
+                SubmitBtn.Text = "Verify Key"
+            end
+        end)
     end)
 end
