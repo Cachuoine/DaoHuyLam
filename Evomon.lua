@@ -1,4 +1,4 @@
--- FishHub - Phiên bản tích hợp tự động hủy khi hết hạn Key 24h (Đã tối ưu Debug Key Exp)
+-- FishHub - Phiên bản tích hợp tự động hủy khi hết hạn Key 24h & Giao diện Evomon chuẩn UI
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -60,39 +60,30 @@ local CurrentPlaceId = game.PlaceId
 local SavedKey = ""
 local KeyExpirationTimestamp = 0
 
-local function LoadKeyData()
-    if readfile and isfile and isfile("FishHub_Key.json") then
-        pcall(function()
-            local data = HttpService:JSONDecode(readfile("FishHub_Key.json"))
-            if data then
-                SavedKey = data.key or ""
-                KeyExpirationTimestamp = data.expiry or 0
-            end
-        end)
-    end
+if readfile and isfile and isfile("FishHub_Key.json") then
+    pcall(function()
+        local data = HttpService:JSONDecode(readfile("FishHub_Key.json"))
+        if data then
+            SavedKey = data.key or ""
+            KeyExpirationTimestamp = data.expiry or 0
+        end
+    end)
 end
-
-LoadKeyData()
 
 ----------------------------------------------------------------------
 -- KIỂM TRA HIỆU LỰC KEY (TỰ ĐỘNG KẾT THÚC KHI HẾT HẠN 24H)
 ----------------------------------------------------------------------
 task.spawn(function()
     while true do
-        LoadKeyData() -- Cập nhật liên tục dữ liệu key từ file
-        -- Bỏ qua nếu là Admin đặc quyền
         if SavedKey ~= "DaoHuyLam22052009" and SavedKey ~= "DaoHuyHoang19102006" then
             if KeyExpirationTimestamp > 0 then
                 local remainingSeconds = KeyExpirationTimestamp - os.time()
-                
-                -- Nếu thời gian hết hạn (<= 0)
                 if remainingSeconds <= 0 then
                     pcall(function()
                         if delfile and isfile("FishHub_Key.json") then
                             delfile("FishHub_Key.json")
                         end
                     end)
-                    
                     if PlayerGui:FindFirstChild("FishHub") then
                         PlayerGui.FishHub:Destroy()
                     end
@@ -100,7 +91,7 @@ task.spawn(function()
                 end
             end
         end
-        task.wait(5) -- Kiểm tra lại mỗi 5 giây
+        task.wait(5)
     end
 end)
 
@@ -477,9 +468,9 @@ task.spawn(function()
         local creHex = ColorToHex(Config.MarqueeCreColor)
         
         if MarqueeExtraConfig.UseRainbowText then
-            local r1, g1, b1 = Color3.toHSV(Color3.fromHSV(rainbowHue, 1, 1))
-            local r2, g2, b2 = Color3.toHSV(Color3.fromHSV((rainbowHue + 0.33) % 1, 1, 1))
-            local r3, g3, b3 = Color3.toHSV(Color3.fromHSV((rainbowHue + 0.66) % 1, 1, 1))
+            local r1, _, _ = Color3.toHSV(Color3.fromHSV(rainbowHue, 1, 1))
+            local r2, _, _ = Color3.toHSV(Color3.fromHSV((rainbowHue + 0.33) % 1, 1, 1))
+            local r3, _, _ = Color3.toHSV(Color3.fromHSV((rainbowHue + 0.66) % 1, 1, 1))
             
             userHex = ColorToHex(Color3.fromHSV(r1, 1, 1))
             execHex = ColorToHex(Color3.fromHSV(r2, 1, 1))
@@ -552,7 +543,144 @@ local function ClearContent()
     end
 end
 
-OpenHome = function() ClearContent() end
+----------------------------------------------------------------------
+-- PHẦN TRANG CHỦ (HOME) - TÍCH HỢP CHỨC NĂNG SCRIPT EVOMON
+----------------------------------------------------------------------
+OpenHome = function()
+    ClearContent()
+
+    local titleLbl = Instance.new("TextLabel")
+    titleLbl.Parent = pageContainer
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Position = UDim2.new(0, 15, 0, 10)
+    titleLbl.Size = UDim2.new(1, -30, 0, 25)
+    titleLbl.Font = Enum.Font.GothamBold
+    titleLbl.Text = "⚡ Evomon Script Collection"
+    titleLbl.TextSize = 18
+    titleLbl.TextColor3 = Color3.fromRGB(240, 240, 240)
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local scrollHolder = Instance.new("ScrollingFrame")
+    scrollHolder.Parent = pageContainer
+    scrollHolder.Position = UDim2.new(0, 15, 0, 40)
+    scrollHolder.Size = UDim2.new(1, -25, 1, -50)
+    scrollHolder.BackgroundTransparency = 1
+    scrollHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
+    scrollHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    scrollHolder.ScrollBarThickness = 3
+    scrollHolder.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 95)
+
+    local uiList = Instance.new("UIListLayout")
+    uiList.Parent = scrollHolder
+    uiList.SortOrder = Enum.SortOrder.LayoutOrder
+    uiList.Padding = UDim.new(0, 10)
+
+    local scriptList = {
+        { Name = "Poluted Team", Url = "https://api.luarmor.net/files/v4/loaders/349171199feeb2b561597b018bf12e5d.lua" },
+        { Name = "Skull Hub", Url = "https://hungquan99.site/v1/script/6b4c37bd-7fdc-4094-877a-fee2eda3515a" },
+        { Name = "Cyraa Hub", Url = "https://raw.githubusercontent.com/LynX99-9/komtolmmek2script/refs/heads/main/CyraaHub.lua" },
+        { Name = "Vxeze Hub Evomon", Url = "https://gist.githubusercontent.com/angeryy-tvy/9def5e4f9f594da721371d3fcfe76967/raw/Evomon-VxezeHub" },
+        { Name = "Ouroboros", Url = "https://raw.githubusercontent.com/joustingmatch/Ouroboros/main/loader.lua" },
+        { Name = "Nasi Rendang Evomon", Url = "https://raw.githubusercontent.com/JualNasiRendang/nasirendang-evomon/main/nasirendang-evomon.lua" },
+    }
+
+    for _, data in ipairs(scriptList) do
+        local btnCard = Instance.new("TextButton")
+        btnCard.Parent = scrollHolder
+        btnCard.Size = UDim2.new(1, -10, 0, 42)
+        btnCard.BackgroundColor3 = Config.BgCard
+        btnCard.BorderSizePixel = 0
+        btnCard.AutoButtonColor = false
+        btnCard.Text = ""
+        
+        Instance.new("UICorner", btnCard).CornerRadius = UDim.new(0, 8)
+
+        local cardStroke = Instance.new("UIStroke")
+        cardStroke.Parent = btnCard
+        cardStroke.Color = Config.BorderColor
+        cardStroke.Thickness = 1
+
+        local nameLbl = Instance.new("TextLabel")
+        nameLbl.Parent = btnCard
+        nameLbl.Position = UDim2.new(0, 12, 0, 0)
+        nameLbl.Size = UDim2.new(1, -120, 1, 0)
+        nameLbl.BackgroundTransparency = 1
+        nameLbl.Font = Enum.Font.GothamBold
+        nameLbl.Text = data.Name
+        nameLbl.TextSize = 13
+        nameLbl.TextColor3 = Color3.fromRGB(240, 240, 240)
+        nameLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+        local badge = Instance.new("Frame")
+        badge.Parent = btnCard
+        badge.Size = UDim2.new(0, 95, 0, 24)
+        badge.Position = UDim2.new(1, -105, 0.5, -12)
+        badge.BackgroundColor3 = Color3.fromRGB(20, 60, 35)
+        badge.BorderSizePixel = 0
+        Instance.new("UICorner", badge).CornerRadius = UDim.new(0, 6)
+
+        local circleGreen = Instance.new("Frame")
+        circleGreen.Parent = badge
+        circleGreen.Size = UDim2.new(0, 8, 0, 8)
+        circleGreen.Position = UDim2.new(0, 8, 0.5, -4)
+        circleGreen.BackgroundColor3 = Color3.fromRGB(50, 230, 80)
+        circleGreen.BorderSizePixel = 0
+        Instance.new("UICorner", circleGreen).CornerRadius = UDim.new(1, 0)
+
+        task.spawn(function()
+            while circleGreen and circleGreen.Parent do
+                TweenService:Create(circleGreen, TweenInfo.new(0.6), {BackgroundTransparency = 0.2}):Play()
+                task.wait(0.6)
+                TweenService:Create(circleGreen, TweenInfo.new(0.6), {BackgroundTransparency = 0.8}):Play()
+                task.wait(0.6)
+            end
+        end)
+
+        local badgeText = Instance.new("TextLabel")
+        badgeText.Parent = badge
+        badgeText.Size = UDim2.new(1, -18, 1, 0)
+        badgeText.Position = UDim2.new(0, 16, 0, 0)
+        badgeText.BackgroundTransparency = 1
+        badgeText.Font = Enum.Font.GothamBold
+        badgeText.Text = "WORKING"
+        badgeText.TextSize = 9
+        badgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        badgeText.TextXAlignment = Enum.TextXAlignment.Center
+
+        btnCard.MouseEnter:Connect(function()
+            TweenService:Create(btnCard, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+            }):Play()
+            TweenService:Create(cardStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                Color = Config.ThemeColor,
+                Thickness = 2
+            }):Play()
+        end)
+
+        btnCard.MouseLeave:Connect(function()
+            TweenService:Create(btnCard, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                BackgroundColor3 = Config.BgCard
+            }):Play()
+            TweenService:Create(cardStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                Color = Config.BorderColor,
+                Thickness = 1
+            }):Play()
+        end)
+
+        btnCard.MouseButton1Click:Connect(function()
+            TweenService:Create(btnCard, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(50, 60, 80)}):Play()
+            task.delay(0.1, function()
+                if btnCard and btnCard.Parent then
+                    TweenService:Create(btnCard, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 45)}):Play()
+                end
+            end)
+
+            pcall(function()
+                loadstring(game:HttpGet(data.Url))()
+            end)
+        end)
+    end
+end
 
 ----------------------------------------------------------------------
 -- PHẦN SUPPORT GAME
@@ -1441,7 +1569,7 @@ local SettingBtn = CreateSideButton("Setting", 110, "rbxassetid://99627454901549
 ----------------------------------------------------------------------
 -- DEBUG OVERLAY
 ----------------------------------------------------------------------
-debugSidebarFrame = Instance.new("Frame")
+local debugSidebarFrame = Instance.new("Frame")
 debugSidebarFrame.Name = "DebugSidebar"
 debugSidebarFrame.Parent = sidebar
 debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
@@ -1473,7 +1601,7 @@ debugSidebarText.RichText = true
 ----------------------------------------------------------------------
 -- KEY STATUS
 ----------------------------------------------------------------------
-keyStatusSidebarFrame = Instance.new("Frame")
+local keyStatusSidebarFrame = Instance.new("Frame")
 keyStatusSidebarFrame.Name = "KeyStatusSidebar"
 keyStatusSidebarFrame.Parent = sidebar
 keyStatusSidebarFrame.Size = UDim2.new(1, -16, 0, 54)
@@ -1574,7 +1702,6 @@ end)
 task.spawn(function()
     while gui and gui.Parent do
         if Config.ShowDebug then
-            LoadKeyData() -- Luôn đồng bộ dữ liệu thời gian thực từ file
             local ping = 0
             pcall(function()
                 ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue())
@@ -1584,9 +1711,11 @@ task.spawn(function()
             local playerCount = #Players:GetPlayers()
             local maxPlayers = Players.MaxPlayers
             local keyStatus = ""
+            local isAdmin = false
 
             if SavedKey == "DaoHuyLam22052009" or SavedKey == "DaoHuyHoang19102006" then
-                keyStatus = "<font color='#FFDF00'>👑 Admin (Unlimited)</font>"
+                keyStatus = "<font color='#FFDF00'>👑 Admin</font>"
+                isAdmin = true
             elseif KeyExpirationTimestamp == 0 then
                 keyStatus = "<font color='#AAAAAA'>No Key</font>"
             else
@@ -1698,4 +1827,47 @@ confirmStroke.Parent = confirm
 confirmStroke.Color = Config.BorderColor
 confirmStroke.Thickness = 1
 
-let txt = Instance.new("TextLabel") -- Dùng local chuẩn cú pháp Lua bên dưới
+local txt = Instance.new("TextLabel")
+txt.Parent = confirm
+txt.Size = UDim2.new(1, -20, 0, 40)
+txt.Position = UDim2.new(0, 10, 0, 15)
+txt.BackgroundTransparency = 1
+txt.Font = Enum.Font.GothamBold
+txt.TextSize = 13
+txt.TextColor3 = Color3.fromRGB(240, 240, 240)
+txt.TextWrapped = true
+
+local yes = Instance.new("TextButton")
+yes.Parent = confirm
+yes.Size = UDim2.new(0.38, 0, 0, 30)
+yes.Position = UDim2.new(0.08, 0, 1, -40)
+yes.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+yes.TextColor3 = Color3.new(1, 1, 1)
+yes.Font = Enum.Font.GothamBold
+yes.TextSize = 12
+Instance.new("UICorner", yes).CornerRadius = UDim.new(0, 6)
+
+local no = Instance.new("TextButton")
+no.Parent = confirm
+no.Size = UDim2.new(0.38, 0, 0, 30)
+no.Position = UDim2.new(0.54, 0, 1, -40)
+no.BackgroundColor3 = Color3.fromRGB(45, 50, 60)
+no.TextColor3 = Color3.new(1, 1, 1)
+no.Font = Enum.Font.GothamBold
+no.TextSize = 12
+Instance.new("UICorner", no).CornerRadius = UDim.new(0, 6)
+
+closeBtn.MouseButton1Click:Connect(function()
+    txt.Text = L("CloseConfirm")
+    yes.Text = L("Yes")
+    no.Text = L("No")
+    confirm.Visible = true
+end)
+
+yes.MouseButton1Click:Connect(function() gui:Destroy() end)
+no.MouseButton1Click:Connect(function() confirm.Visible = false end)
+hideBtn.MouseButton1Click:Connect(function() CloseGUI() end)
+
+SelectButton(HomeBtn)
+OpenHome()
+OpenGUI()
