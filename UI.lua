@@ -1,4 +1,6 @@
--- FishHub - Phiên bản tích hợp tự động hủy khi hết hạn Key 24h
+-- [ĐÃ CẬP NHẬT] Giao diện FishHub (bloxfruit.lua) được đồng bộ hoàn toàn với UI.lua
+-- Giữ nguyên trọn vẹn danh sách script Blox Fruits và chức năng Home tùy chỉnh ở phiên bản cũ.
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -20,7 +22,7 @@ if PlayerGui:FindFirstChild("FishHub") then
 end
 
 ----------------------------------------------------------------------
--- DANH SÁCH GAME HỖ TRỢ THEO THỂ LOẠI
+-- DANH SÁCH GAME HỖ TRỢ THEO THỂ LOẠI (HỆ THỐNG CHUNG)
 ----------------------------------------------------------------------
 local SupportedCategories = {
     {
@@ -28,7 +30,7 @@ local SupportedCategories = {
         Games = {
             { Name = "Evomon", PlaceIds = {134381727982611} },
             { Name = "Blox Fruits", PlaceIds = {2753915549, 4442272183, 7449423635} },
-			{ Name = "Haze", PlaceIds = {6918802270} }
+            { Name = "Haze", PlaceIds = {6918802270} }
         }
     },
     {
@@ -69,35 +71,6 @@ if readfile and isfile and isfile("FishHub_Key.json") then
         end
     end)
 end
-
-----------------------------------------------------------------------
--- KIỂM TRA HIỆU LỰC KEY (TỰ ĐỘNG KẾT THÚC KHI HẾT HẠN 24H)
-----------------------------------------------------------------------
-task.spawn(function()
-    while true do
-        -- Bỏ qua nếu là Admin đặc quyền
-        if SavedKey ~= "DaoHuyLam22052009" and SavedKey ~= "DaoHuyHoang19102006" then
-            if KeyExpirationTimestamp > 0 then
-                local remainingSeconds = KeyExpirationTimestamp - os.time()
-                
-                -- Nếu thời gian hết hạn (<= 0)
-                if remainingSeconds <= 0 then
-                    pcall(function()
-                        if delfile and isfile("FishHub_Key.json") then
-                            delfile("FishHub_Key.json")
-                        end
-                    end)
-                    
-                    if PlayerGui:FindFirstChild("FishHub") then
-                        PlayerGui.FishHub:Destroy()
-                    end
-                    break
-                end
-            end
-        end
-        task.wait(5) -- Kiểm tra lại mỗi 5 giây
-    end
-end)
 
 ----------------------------------------------------------------------
 -- CẤU HÌNH & CONFIG UI
@@ -547,10 +520,185 @@ local function ClearContent()
     end
 end
 
-OpenHome = function() ClearContent() end
+----------------------------------------------------------------------
+-- PHẦN TRANG CHỦ (GIỮ NGUYÊN HOÀN TOÀN CÁC SCRIPT BLOX FRUITS)
+----------------------------------------------------------------------
+OpenHome = function()
+    ClearContent()
+
+    local titleLbl = Instance.new("TextLabel")
+    titleLbl.Parent = pageContainer
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Position = UDim2.new(0, 15, 0, 10)
+    titleLbl.Size = UDim2.new(1, -30, 0, 25)
+    titleLbl.Font = Enum.Font.GothamBold
+    titleLbl.Text = "⚡ Blox Fruits Script Collection"
+    titleLbl.TextSize = 18
+    titleLbl.TextColor3 = Color3.fromRGB(240, 240, 240)
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local hScrollHolder = Instance.new("ScrollingFrame")
+    hScrollHolder.Parent = pageContainer
+    hScrollHolder.Position = UDim2.new(0, 15, 0, 42)
+    hScrollHolder.Size = UDim2.new(1, -25, 0, 35)
+    hScrollHolder.BackgroundTransparency = 1
+    hScrollHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
+    hScrollHolder.AutomaticCanvasSize = Enum.AutomaticSize.X
+    hScrollHolder.ScrollBarThickness = 2
+    hScrollHolder.ScrollBarImageColor3 = Config.ThemeColor
+
+    local hList = Instance.new("UIListLayout")
+    hList.Parent = hScrollHolder
+    hList.FillDirection = Enum.FillDirection.Horizontal
+    hList.SortOrder = Enum.SortOrder.LayoutOrder
+    hList.Padding = UDim.new(0, 8)
+
+    local scrollHolder = Instance.new("ScrollingFrame")
+    scrollHolder.Parent = pageContainer
+    scrollHolder.Position = UDim2.new(0, 15, 0, 85)
+    scrollHolder.Size = UDim2.new(1, -25, 1, -95)
+    scrollHolder.BackgroundTransparency = 1
+    scrollHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
+    scrollHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    scrollHolder.ScrollBarThickness = 3
+    scrollHolder.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 95)
+
+    local uiList = Instance.new("UIListLayout")
+    uiList.Parent = scrollHolder
+    uiList.SortOrder = Enum.SortOrder.LayoutOrder
+    uiList.Padding = UDim.new(0, 10)
+
+    local categoriesData = {
+        {
+            TabName = "🔥 All Scripts",
+            Scripts = {
+                { Name = "Banana Cat Hub - Kaitun Script", Url = "https://raw.githubusercontent.com/x2RunE/paid_script_cracked/refs/heads/main/banana-cat/kaitunLoader.lua" },
+                { Name = "Banana Cat Hub - Kaitun V4", Url = "https://raw.githubusercontent.com/x2RunE/Immortal/refs/heads/main/BananaCat-KaitunV4.lua" },
+                { Name = "Banana Cat Hub - Kaitun Dungeon", Url = "https://raw.githubusercontent.com/x2RunE/Immortal/refs/heads/main/BananaCat-KaitunDungeon.lua" },
+                { Name = "Banana Cat Hub - Kaitun Levi", Url = 'repeat wait() until game:IsLoaded() and game.Players.LocalPlayer\nloadstring(game:HttpGet("https://raw.githubusercontent.com/x2RunE/paid_script_cracked/refs/heads/main/banana-cat/kaitunLeviLoader.lua"))()' },
+                { Name = "Anime Mod", Url = "https://raw.githubusercontent.com/gatinho1dev/Animemodhub/main/Animemodhub" },
+                { Name = "Anime Mod Menu", Url = "https://raw.githubusercontent.com/gatinho1dev/Anime-mod-menu-hub-/refs/heads/main/Animemodmenu" },
+                { Name = "Apple Hub Loader", Url = "https://raw.githubusercontent.com/AlexHerrySeek/AppleHub/refs/heads/main/loader/main.lua" },
+                { Name = "Banana Cat Hub", Url = "https://raw.githubusercontent.com/x2RunE/Immortal/refs/heads/main/BananaCat-Loader.lua" },
+                { Name = "Gravity Hub Main", Url = "https://raw.githubusercontent.com/Dev-GravityHub/BloxFruit/refs/heads/main/Main.lua" },
+                { Name = "NaNaTV Hub", Url = "https://raw.githubusercontent.com/NaNaTV36/NaNaTVHubPremium/refs/heads/main/mainpremium.lua" },
+                { Name = "Night Hub", Url = "https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/BF-Beta.lua" },
+                { Name = "NightMystic Hub", Url = "https://raw.githubusercontent.com/Dev-NightMystic/Bloxfruits/refs/heads/main/Script.lua" },
+                { Name = "Quantum Onyx Hub", Url = "https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua" },
+                { Name = "Vxeze Hub Free Beta", Url = "https://raw.githubusercontent.com/Dex-Bear/VxezeHubLoader/refs/heads/main/FreeBeta.lua" },
+                { Name = "Onion13 Hub (PVP)", Url = "https://api.luarmor.net/files/v4/loaders/cc815ef92aaf3ed41a37aa4d87cd93ff.lua" },
+                { Name = "Realkid Hub", Url = "https://raw.githubusercontent.com/realkid-hub/bloxfruits/main/loader.lua" }
+            }
+        },
+        {
+            TabName = "🤖 Kaitun Hubs",
+            Scripts = {
+                { Name = "Banana Cat Hub - Kaitun Script", Url = "https://raw.githubusercontent.com/x2RunE/paid_script_cracked/refs/heads/main/banana-cat/kaitunLoader.lua" },
+                { Name = "Banana Cat Hub - Kaitun V4", Url = "https://raw.githubusercontent.com/x2RunE/Immortal/refs/heads/main/BananaCat-KaitunV4.lua" },
+                { Name = "Banana Cat Hub - Kaitun Dungeon", Url = "https://raw.githubusercontent.com/x2RunE/Immortal/refs/heads/main/BananaCat-KaitunDungeon.lua" },
+                { Name = "Banana Cat Hub - Kaitun Levi", Url = 'repeat wait() until game:IsLoaded() and game.Players.LocalPlayer\nloadstring(game:HttpGet("https://raw.githubusercontent.com/x2RunE/paid_script_cracked/refs/heads/main/banana-cat/kaitunLeviLoader.lua"))()' }
+            }
+        },
+        {
+            TabName = "⭐ Popular Hubs",
+            Scripts = {
+                { Name = "Banana Cat Hub", Url = "https://raw.githubusercontent.com/x2RunE/Immortal/refs/heads/main/BananaCat-Loader.lua" },
+                { Name = "Gravity Hub Main", Url = "https://raw.githubusercontent.com/Dev-GravityHub/BloxFruit/refs/heads/main/Main.lua" },
+                { Name = "Quantum Onyx Hub", Url = "https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua" },
+                { Name = "Realkid Hub", Url = "https://raw.githubusercontent.com/realkid-hub/bloxfruits/main/loader.lua" },
+                { Name = "Night Hub", Url = "https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/BF-Beta.lua" },
+                { Name = "NightMystic Hub", Url = "https://raw.githubusercontent.com/Dev-NightMystic/Bloxfruits/refs/heads/main/Script.lua" }
+            }
+        }
+    }
+
+    local function DisplayScripts(scriptList)
+        for _, v in ipairs(scrollHolder:GetChildren()) do
+            if v:IsA("TextButton") then v:Destroy() end
+        end
+
+        for _, data in ipairs(scriptList) do
+            local card = Instance.new("TextButton")
+            card.Parent = scrollHolder
+            card.Size = UDim2.new(1, -10, 0, 48)
+            card.BackgroundColor3 = Config.BgCard
+            card.BorderSizePixel = 0
+            card.AutoButtonColor = false
+            card.Text = ""
+            Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
+
+            local stroke = Instance.new("UIStroke")
+            stroke.Parent = card
+            stroke.Color = Config.BorderColor
+            stroke.Thickness = 1
+
+            card.MouseEnter:Connect(function()
+                TweenService:Create(card, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(32, 32, 42)}):Play()
+                TweenService:Create(stroke, TweenInfo.new(0.2), {Color = Config.ThemeColor}):Play()
+            end)
+            card.MouseLeave:Connect(function()
+                TweenService:Create(card, TweenInfo.new(0.2), {BackgroundColor3 = Config.BgCard}):Play()
+                TweenService:Create(stroke, TweenInfo.new(0.2), {Color = Config.BorderColor}):Play()
+            end)
+
+            local sName = Instance.new("TextLabel")
+            sName.Parent = card
+            sName.Position = UDim2.new(0, 15, 0.5, -10)
+            sName.Size = UDim2.new(1, -30, 0, 20)
+            sName.BackgroundTransparency = 1
+            sName.Font = Enum.Font.GothamBold
+            sName.Text = data.Name
+            sName.TextSize = 13
+            sName.TextColor3 = Color3.fromRGB(240, 240, 240)
+            sName.TextXAlignment = Enum.TextXAlignment.Left
+
+            card.MouseButton1Click:Connect(function()
+                pcall(function()
+                    if string.find(data.Url, "repeat") then
+                        task.spawn(function()
+                            local f = loadstring(data.Url)
+                            if f then f() end
+                        end)
+                    else
+                        task.spawn(function()
+                            local f = loadstring(game:HttpGet(data.Url))
+                            if f then f() end
+                        end)
+                    end
+                end)
+            end)
+        end
+    end
+
+    for i, cat in ipairs(categoriesData) do
+        local tabBtn = Instance.new("TextButton")
+        tabBtn.Parent = hScrollHolder
+        tabBtn.Size = UDim2.new(0, 110, 0, 28)
+        tabBtn.BackgroundColor3 = (i == 1) and Config.ThemeColor or Color3.fromRGB(28, 28, 36)
+        tabBtn.Text = cat.TabName
+        tabBtn.Font = Enum.Font.GothamBold
+        tabBtn.TextSize = 11
+        tabBtn.TextColor3 = (i == 1) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 195)
+        Instance.new("UICorner", tabBtn).CornerRadius = UDim.new(0, 6)
+
+        tabBtn.MouseButton1Click:Connect(function()
+            for _, child in ipairs(hScrollHolder:GetChildren()) do
+                if child:IsA("TextButton") then
+                    child.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+                    child.TextColor3 = Color3.fromRGB(180, 180, 195)
+                end
+            end
+            tabBtn.BackgroundColor3 = Config.ThemeColor
+            tabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            DisplayScripts(cat.Scripts)
+        end)
+    end
+
+    DisplayScripts(categoriesData[1].Scripts)
+end
 
 ----------------------------------------------------------------------
--- PHẦN SUPPORT GAME
+-- PHẦN SUPPORT GAME (CHỈ GIỮ LẠI BLOX FRUITS THEO YÊU CẦU)
 ----------------------------------------------------------------------
 OpenSupport = function()
     ClearContent()
@@ -605,9 +753,19 @@ OpenSupport = function()
     uiList.SortOrder = Enum.SortOrder.LayoutOrder
     uiList.Padding = UDim.new(0, 14)
 
+    -- Chỉ lọc lại danh mục chứa Blox Fruits hoặc chỉ hiển thị Blox Fruits
+    local BloxFruitOnlyCategories = {
+        {
+            CategoryName = "⚔️ Anime & RPG",
+            Games = {
+                { Name = "Blox Fruits", PlaceIds = {2753915549, 4442272183, 7449423635} }
+            }
+        }
+    }
+
     local categoryFrames = {}
 
-    for _, catData in ipairs(SupportedCategories) do
+    for _, catData in ipairs(BloxFruitOnlyCategories) do
         local catFrame = Instance.new("Frame")
         catFrame.Parent = scrollHolder
         catFrame.Size = UDim2.new(1, -10, 0, 0)
@@ -663,7 +821,7 @@ OpenSupport = function()
                 end
             end
 
-            local isWorking = (gameData.Name == "Evomon" or gameData.Name == "Blox Fruits")
+            local isWorking = true
 
             local card = Instance.new("Frame")
             card.Parent = gameGridContainer
@@ -706,7 +864,7 @@ OpenSupport = function()
             badge.Parent = card
             badge.Size = UDim2.new(0, 85, 0, 18)
             badge.Position = UDim2.new(0, 12, 0, 28)
-            badge.BackgroundColor3 = isWorking and Color3.fromRGB(20, 60, 35) or Color3.fromRGB(60, 20, 20)
+            badge.BackgroundColor3 = Color3.fromRGB(20, 60, 35)
             badge.BorderSizePixel = 0
             Instance.new("UICorner", badge).CornerRadius = UDim.new(0, 4)
 
@@ -714,7 +872,7 @@ OpenSupport = function()
             circleGreenRed.Parent = badge
             circleGreenRed.Size = UDim2.new(0, 6, 0, 6)
             circleGreenRed.Position = UDim2.new(0, 6, 0.5, -3)
-            circleGreenRed.BackgroundColor3 = isWorking and Color3.fromRGB(50, 230, 80) or Color3.fromRGB(230, 50, 50)
+            circleGreenRed.BackgroundColor3 = Color3.fromRGB(50, 230, 80)
             circleGreenRed.BorderSizePixel = 0
             Instance.new("UICorner", circleGreenRed).CornerRadius = UDim.new(1, 0)
 
@@ -733,7 +891,7 @@ OpenSupport = function()
             badgeText.Position = UDim2.new(0, 14, 0, 0)
             badgeText.BackgroundTransparency = 1
             badgeText.Font = Enum.Font.GothamBold
-            badgeText.Text = isWorking and "WORKING" or "OFFLINE"
+            badgeText.Text = "WORKING"
             badgeText.TextSize = 8.5
             badgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
             badgeText.TextXAlignment = Enum.TextXAlignment.Center
@@ -1597,25 +1755,14 @@ task.spawn(function()
                 end
             end
 
-            if isAdmin then
-                debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
-                debugSidebarText.Text = string.format(
-                    "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
-                    "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
-                    "🕒 <b>TIME:</b> %s\n" ..
-                    "🔑 <b>KEY EXP:</b>\n   └ %s",
-                    currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
-                )
-            else
-                debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
-                debugSidebarText.Text = string.format(
-                    "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
-                    "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
-                    "🕒 <b>TIME:</b> %s\n" ..
-                    "🔑 <b>KEY EXP:</b>\n   └ %s",
-                    currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
-                )
-            end
+            debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
+            debugSidebarText.Text = string.format(
+                "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
+                "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
+                "🕒 <b>TIME:</b> %s\n" ..
+                "🔑 <b>KEY EXP:</b>\n   └ %s",
+                currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
+            )
         end
         task.wait(0.5)
     end
