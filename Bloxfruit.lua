@@ -1,5 +1,5 @@
--- [ĐÃ CẬP NHẬT] Giao diện FishHub (bloxfruit.lua) được đồng bộ hoàn toàn với UI.lua
--- Giữ nguyên trọn vẹn danh sách script Blox Fruits và chức năng Home tùy chỉnh ở phiên bản cũ.
+-- [ĐÃ CẬP NHẬT] Giao diện FishHub (bloxfruit.lua) được đồng bộ hoàn toàn với UI
+-- Giữ nguyên trọn vẹn danh sách script Blox Fruits và chức năng Home tùy chỉnh.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -698,7 +698,7 @@ OpenHome = function()
 end
 
 ----------------------------------------------------------------------
--- PHẦN SUPPORT GAME (ĐÃ ĐỒNG BỘ GIAO DIỆN CHUẨN UI.LUA)
+-- PHẦN SUPPORT GAME
 ----------------------------------------------------------------------
 OpenSupport = function()
     ClearContent()
@@ -866,6 +866,15 @@ OpenSupport = function()
             circleGreenRed.BorderSizePixel = 0
             Instance.new("UICorner", circleGreenRed).CornerRadius = UDim.new(1, 0)
 
+            task.spawn(function()
+                while circleGreenRed and circleGreenRed.Parent do
+                    TweenService:Create(circleGreenRed, TweenInfo.new(0.6), {BackgroundTransparency = 0.2}):Play()
+                    task.wait(0.6)
+                    TweenService:Create(circleGreenRed, TweenInfo.new(0.6), {BackgroundTransparency = 0.8}):Play()
+                    task.wait(0.6)
+                end
+            end)
+
             local badgeText = Instance.new("TextLabel")
             badgeText.Parent = badge
             badgeText.Size = UDim2.new(1, -14, 1, 0)
@@ -901,7 +910,7 @@ OpenSupport = function()
 end
 
 ----------------------------------------------------------------------
--- CỬA SỔ SETTINGS (ĐỒNG BỘ HOÀN TOÀN TỪ UI.LUA)
+-- CỬA SỔ SETTINGS
 ----------------------------------------------------------------------
 OpenSettings = function()
     ClearContent()
@@ -1746,12 +1755,12 @@ task.spawn(function()
                     currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
                 )
             else
-                debugSidebarFrame.Size = UDim2.new(1, -10, 0, 84)
+                debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
                 debugSidebarText.Text = string.format(
                     "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
                     "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
                     "🕒 <b>TIME:</b> %s\n" ..
-                    "🔑 <b>KEY:</b> %s",
+                    "🔑 <b>KEY EXP:</b>\n   └ %s",
                     currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
                 )
             end
