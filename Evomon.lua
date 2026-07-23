@@ -19,40 +19,34 @@ if PlayerGui:FindFirstChild("FishHub") then
 end
 
 ----------------------------------------------------------------------
--- DANH SÁCH GAME HỖ TRỢ THEO THỂ LOẠI (SUPPORTED GAMES BY CATEGORY)
+-- DANH SÁCH GAME HỖ TRỢ THEO THỂ LOẠI (ĐÃ CHUYỂN HAZE SANG ANIME & RPG)
 ----------------------------------------------------------------------
 local SupportedCategories = {
     {
         CategoryName = "⚔️ Anime & RPG",
         Games = {
-            { Name = "Evomon", PlaceIds = {134381727982611}, Icon = "rbxassetid://108029482244357" },
-            { Name = "Blox Fruits", PlaceIds = {2753915549, 4442272183, 7449423635}, Icon = "rbxassetid://108029482244357" },
-            { Name = "King Legacy", PlaceIds = {4520749081, 6381829480}, Icon = "rbxassetid://108029482244357" },
-            { Name = "Grand Piece Online", PlaceIds = {1730877819}, Icon = "rbxassetid://108029482244357" },
-            { Name = "Anime Adventures", PlaceIds = {8304191830}, Icon = "rbxassetid://108029482244357" },
+            { Name = "Evomon", PlaceIds = {134381727982611} },
+            { Name = "Blox Fruits", PlaceIds = {2753915549, 4442272183, 7449423635} },
+			{ Name = "Haze", PlaceIds = {6918802270} }
         }
     },
     {
         CategoryName = "🎣 Adventure & Casual",
         Games = {
-            { Name = "Fisch", PlaceIds = {16732694052}, Icon = "rbxassetid://108029482244357" },
-            { Name = "Adopt Me!", PlaceIds = {920587237}, Icon = "rbxassetid://108029482244357" },
-            { Name = "Brookhaven RP", PlaceIds = {4924922222}, Icon = "rbxassetid://108029482244357" },
+            { Name = "Fisch", PlaceIds = {16732694052} },
+            { Name = "99 Nights in the Forest", PlaceIds = {79546208627805} },
         }
     },
     {
         CategoryName = "🎯 Action & Shooter",
         Games = {
-            { Name = "Rivals", PlaceIds = {17625359962}, Icon = "rbxassetid://108029482244357" },
-            { Name = "Arsenal", PlaceIds = {286090429}, Icon = "rbxassetid://108029482244357" },
-            { Name = "Murder Mystery 2", PlaceIds = {142823291}, Icon = "rbxassetid://108029482244357" },
+            { Name = "Rivals", PlaceIds = {17625359962} },
         }
     },
     {
         CategoryName = "🚜 Simulator & Farming",
         Games = {
-            { Name = "Pet Simulator 99", PlaceIds = {8737899170, 16498369169}, Icon = "rbxassetid://108029482244357" },
-            { Name = "Bee Swarm Simulator", PlaceIds = {1537690962}, Icon = "rbxassetid://108029482244357" },
+            { Name = "Grow a Garden 2", PlaceIds = {97598239454123} }
         }
     }
 }
@@ -83,13 +77,17 @@ local Config = {
     MainHeight = 480,
     MaxWidth = 1000,
     MaxHeight = 650,
-    RainbowBorder = true,
+    RainbowBorder = false,
     RainbowSpeed = 0.003,
     GUIAnimation = true,
     Language = "EN",
     ToggleKey = Enum.KeyCode.RightShift,
     
-    ThemeColor = Color3.fromRGB(0, 229, 255),       -- Cyan Neon mặc định
+    MarqueeUserColor = Color3.fromRGB(0, 229, 255),      
+    MarqueeExecutorColor = Color3.fromRGB(168, 85, 247), 
+    MarqueeCreColor = Color3.fromRGB(255, 75, 75),       
+    
+    ThemeColor = Color3.fromRGB(0, 229, 255),       
     BgMain = Color3.fromRGB(16, 16, 20),           
     BgSidebar = Color3.fromRGB(11, 11, 14),        
     BgSidebarBtn = Color3.fromRGB(20, 20, 26),     
@@ -99,6 +97,12 @@ local Config = {
     BorderColor = Color3.fromRGB(45, 45, 60),      
     
     ShowDebug = true
+}
+
+local MarqueeExtraConfig = {
+    UseRainbowText = true,      
+    RainbowSpeed = 0.002,       
+    EnableBreathing = true,     
 }
 
 local Translations = {
@@ -111,24 +115,32 @@ local Translations = {
         SupportTitle = "🎮 Supported Games List",
         
         CatAppearance = "🎨 Visual & Theme",
+        CatFooterColors = "👤 Footer Text Colors",
         CatSystem = "⚙️ System & Controls",
         CatActions = "⚡ Quick Utilities",
 
         RainbowToggle = "🌈 Rainbow Border",
         RainbowDesc = "Enable/Disable continuous rainbow border effect.",
         SpeedToggle = "⚡ Rainbow Speed",
-        SpeedDesc = "Cycle rainbow effect speed (Slow / Medium / Fast).",
+        SpeedDesc = "Cycle rainbow effect speed.",
         AnimToggle = "🎬 GUI Animation",
         AnimDesc = "Smooth open/close window transitions.",
         LangToggle = "🌐 Language",
         LangDesc = "Switch interface language.",
         KeybindTitle = "⌨️ Toggle Hotkey",
         KeybindDesc = "Click to set a new toggle hotkey.",
-        ThemeTitle = "🎨 GUI Theme Color",
-        ThemeDesc = "Click to open theme selector and choose colors.",
+        ThemeTitle = "🎨 FishHub Theme",
+        ThemeDesc = "Choose a custom color theme for FishHub UI.",
         DebugToggle = "📊 Debug Overlay",
-        DebugDesc = "Display FPS, Ping, Time (24h) and Key Status.",
-        
+        DebugDesc = "Display FPS, Ping, Players, Time and Key Status.",
+
+        MarqueeUserTitle = "👤 User Text Color",
+        MarqueeUserDesc = "Change text color for the User section.",
+        MarqueeExecutorTitle = "⚡ Executor Text Color",
+        MarqueeExecutorDesc = "Change text color for the Executor section.",
+        MarqueeCreTitle = "👑 Creator Text Color",
+        MarqueeCreDesc = "Change text color for the Creator (CRE) section.",
+
         RejoinBtn = "🔄 Rejoin Game",
         HopBtn = "🌐 Server Hop",
         CopyDiscordBtn = "📋 Copy Discord Link",
@@ -148,23 +160,31 @@ local Translations = {
         SupportTitle = "🎮 Danh Sách Game Hỗ Trợ",
 
         CatAppearance = "🎨 Giao Diện & Theme",
+        CatFooterColors = "👤 Màu Chữ Dòng Chạy (Footer)",
         CatSystem = "⚙️ Hệ Thống & Phím Tắt",
         CatActions = "⚡ Công Cụ Nhanh",
 
         RainbowToggle = "🌈 Viền Cầu Vồng",
         RainbowDesc = "Bật/Tắt hiệu ứng chuyển màu viền liên tục.",
         SpeedToggle = "⚡ Tốc Độ Cầu Vồng",
-        SpeedDesc = "Thay đổi tốc độ đổi màu (Chậm / Vừa / Nhanh).",
+        SpeedDesc = "Thay đổi tốc độ đổi màu.",
         AnimToggle = "🎬 Hiệu Ứng Mở/Đóng",
         AnimDesc = "Hiệu ứng thu phóng mượt mà khi bật/tắt UI.",
         LangToggle = "🌐 Ngôn Ngữ",
         LangDesc = "Chuyển đổi Tiếng Anh / Tiếng Việt.",
         KeybindTitle = "⌨️ Phím Tắt Ẩn/Hiện",
         KeybindDesc = "Nhấn để đổi phím mở giao diện.",
-        ThemeTitle = "🎨 Màu Theme Giao Diện",
-        ThemeDesc = "Nhấn để mở bảng chọn màu phong cách.",
+        ThemeTitle = "🎨 Giao Diện Chủ Đề",
+        ThemeDesc = "Chọn màu chủ đề độc đáo cho giao diện FishHub.",
         DebugToggle = "📊 Bảng Debug Thông Số",
-        DebugDesc = "Hiển thị FPS, Ping, Giờ (24h) và Thời hạn Key.",
+        DebugDesc = "Hiển thị FPS, Ping, Người chơi, Giờ và Key.",
+
+        MarqueeUserTitle = "👤 Màu Chữ Phần User",
+        MarqueeUserDesc = "Đổi màu riêng cho phần tên User ở dòng chạy.",
+        MarqueeExecutorTitle = "⚡ Màu Chữ Phần Executor",
+        MarqueeExecutorDesc = "Đổi màu riêng cho phần Executor ở dòng chạy.",
+        MarqueeCreTitle = "👑 Màu Chữ Phần Creator",
+        MarqueeCreDesc = "Đổi màu riêng cho phần Creator (CRE) ở dòng chạy.",
 
         RejoinBtn = "🔄 Vào Lại Server",
         HopBtn = "🌐 Chuyển Server",
@@ -198,131 +218,6 @@ gui.IgnoreGuiInset = true
 gui.Parent = PlayerGui
 
 ----------------------------------------------------------------------
--- DEBUG OVERLAY
-----------------------------------------------------------------------
-local debugFrame = Instance.new("Frame")
-debugFrame.Name = "DebugOverlay"
-debugFrame.Parent = gui
-debugFrame.Size = UDim2.new(0, 215, 0, 78)
-debugFrame.Position = UDim2.new(0.5, 0, 0, 15)
-debugFrame.AnchorPoint = Vector2.new(0.5, 0)
-debugFrame.BackgroundColor3 = Config.BgMain
-debugFrame.BackgroundTransparency = 0.15
-debugFrame.BorderSizePixel = 0
-debugFrame.Visible = Config.ShowDebug
-
-Instance.new("UICorner", debugFrame).CornerRadius = UDim.new(0, 8)
-
-local debugStroke = Instance.new("UIStroke")
-debugStroke.Parent = debugFrame
-debugStroke.Thickness = 1
-debugStroke.Color = Config.BorderColor
-
-local debugText = Instance.new("TextLabel")
-debugText.Parent = debugFrame
-debugText.Size = UDim2.new(1, -12, 1, -8)
-debugText.Position = UDim2.new(0, 8, 0, 4)
-debugText.BackgroundTransparency = 1
-debugText.Font = Enum.Font.Code
-debugText.TextSize = 11
-debugText.TextColor3 = Color3.fromRGB(240, 240, 240)
-debugText.TextXAlignment = Enum.TextXAlignment.Left
-debugText.TextYAlignment = Enum.TextYAlignment.Top
-debugText.RichText = true
-
-local debugDragging, debugDragStart, debugStartPos
-debugFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        debugDragging = true
-        debugDragStart = input.Position
-        debugStartPos = debugFrame.AbsolutePosition
-        
-        debugFrame.AnchorPoint = Vector2.new(0, 0)
-        debugFrame.Position = UDim2.new(0, debugStartPos.X, 0, debugStartPos.Y)
-        
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                debugDragging = false
-            end
-        end)
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and debugDragging then
-        local delta = input.Position - debugDragStart
-        debugFrame.Position = UDim2.new(0, debugStartPos.X + delta.X, 0, debugStartPos.Y + delta.Y)
-    end
-end)
-
-local frameCount = 0
-local lastFpsUpdate = os.clock()
-local currentFps = 60
-
-RunService.RenderStepped:Connect(function()
-    frameCount = frameCount + 1
-    local now = os.clock()
-    if now - lastFpsUpdate >= 1 then
-        currentFps = math.floor(frameCount / (now - lastFpsUpdate))
-        frameCount = 0
-        lastFpsUpdate = now
-    end
-end)
-
-task.spawn(function()
-    while gui and gui.Parent do
-        if Config.ShowDebug then
-            local ping = 0
-            pcall(function()
-                ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue())
-            end)
-
-            local time24h = os.date("%H:%M:%S")
-            local keyStatus = ""
-            local isAdmin = false
-
-            if SavedKey == "DaoHuyLam22052009" or SavedKey == "DaoHuyHoang19102006" then
-                keyStatus = "<font color='#FFDF00'>👑 Admin (Permanent)</font>"
-                isAdmin = true
-            elseif KeyExpirationTimestamp == 0 then
-                keyStatus = "<font color='#AAAAAA'>No Key Saved</font>"
-            else
-                local remainingSeconds = KeyExpirationTimestamp - os.time()
-                if remainingSeconds <= 0 then
-                    keyStatus = "<font color='#FF4B4B'>Expired (00h 00m 00s)</font>"
-                else
-                    local hours = math.floor(remainingSeconds / 3600)
-                    local mins = math.floor((remainingSeconds % 3600) / 60)
-                    local secs = remainingSeconds % 60
-                    keyStatus = string.format("<font color='#50D74B'>%02dh %02dm %02ds</font>", hours, mins, secs)
-                end
-            end
-
-            if isAdmin then
-                debugFrame.Size = UDim2.new(0, 200, 0, 92)
-                debugText.Text = string.format(
-                    "⚡ <b>FPS:</b> %d\n" ..
-                    "📶 <b>PING:</b> %d ms\n" ..
-                    "🕒 <b>TIME:</b> %s\n" ..
-                    "🔑 <b>KEY EXP:</b>\n   └ %s",
-                    currentFps, ping, time24h, keyStatus
-                )
-            else
-                debugFrame.Size = UDim2.new(0, 215, 0, 78)
-                debugText.Text = string.format(
-                    "⚡ <b>FPS:</b> %d\n" ..
-                    "📶 <b>PING:</b> %d ms\n" ..
-                    "🕒 <b>TIME:</b> %s\n" ..
-                    "🔑 <b>KEY EXP:</b> %s",
-                    currentFps, ping, time24h, keyStatus
-                )
-            end
-        end
-        task.wait(0.5)
-    end
-end)
-
-----------------------------------------------------------------------
 -- MAIN HUB UI
 ----------------------------------------------------------------------
 local openLine = Instance.new("Frame")
@@ -331,6 +226,7 @@ openLine.Size = UDim2.new(0, 550, 0, 6)
 openLine.Position = UDim2.new(0.5, 0, 0, 3)
 openLine.AnchorPoint = Vector2.new(0.5, 0)
 openLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+openLine.BackgroundTransparency = 0
 openLine.BorderSizePixel = 0
 
 Instance.new("UICorner", openLine).CornerRadius = UDim.new(1, 0)
@@ -370,9 +266,13 @@ main.Size = UDim2.new(0, Config.MainWidth, 0, Config.MainHeight)
 main.Position = UDim2.new(0.5, 0, 0.5, 0)
 main.AnchorPoint = Vector2.new(0.5, 0.5)
 main.BackgroundColor3 = Config.BgMain
-main.BackgroundTransparency = 0.05
+main.BackgroundTransparency = 0
 main.BorderSizePixel = 0
 main.Visible = false
+
+local mainScale = Instance.new("UIScale")
+mainScale.Parent = main
+mainScale.Scale = 1
 
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 14)
 
@@ -399,20 +299,24 @@ OpenGUI = function()
     if currentTween then currentTween:Cancel() end
     if not Config.GUIAnimation then
         main.Visible = true
-        main.Size = UDim2.new(0, Config.MainWidth, 0, Config.MainHeight)
-        main.BackgroundTransparency = 0.05
+        mainScale.Scale = 1
+        main.BackgroundTransparency = 0
         return
     end
     
     main.Visible = true
-    main.Size = UDim2.new(0, 580, 0, 400)
+    mainScale.Scale = 0.85
     main.BackgroundTransparency = 1
     
-    currentTween = TweenService:Create(main, TweenInfo.new(0.18, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, Config.MainWidth, 0, Config.MainHeight),
-        BackgroundTransparency = 0.05
+    currentTween = TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 0
     })
+    local scaleTween = TweenService:Create(mainScale, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Scale = 1
+    })
+    
     currentTween:Play()
+    scaleTween:Play()
 end
 
 CloseGUI = function()
@@ -422,16 +326,20 @@ CloseGUI = function()
         return
     end
     
-    currentTween = TweenService:Create(main, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-        Size = UDim2.new(0, 580, 0, 400),
+    currentTween = TweenService:Create(main, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
         BackgroundTransparency = 1
     })
-    currentTween:Play()
+    local scaleTween = TweenService:Create(mainScale, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+        Scale = 0.85
+    })
     
-    task.delay(0.15, function()
+    currentTween:Play()
+    scaleTween:Play()
+    
+    task.delay(0.25, function()
         if main and main.BackgroundTransparency >= 0.9 then
             main.Visible = false
-            main.Size = UDim2.new(0, Config.MainWidth, 0, Config.MainHeight)
+            mainScale.Scale = 1
         end
     end)
 end
@@ -460,7 +368,7 @@ title.Parent = header
 title.BackgroundTransparency = 1
 title.Size = UDim2.new(1, 0, 1, 0)
 title.RichText = true
-title.Text = "⚓ <font color='#E0E0E0'>FishHub</font> <font color='#808090'>┆ Script Collection</font>"
+title.Text = "⚓ <font color='#00E5FF'>FishHub</font> <font color='#808090'>┆</font> <font color='#A855F7'>Script Collection</font>"
 title.Font = Enum.Font.GothamBold
 title.TextSize = 18
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -501,16 +409,22 @@ task.spawn(function()
     end)
 end)
 
-local discordText = Instance.new("TextLabel")
+local discordText = Instance.new("TextButton")
 discordText.Parent = discordBox
-discordText.Size = UDim2.new(0, 900, 1, 0)
+discordText.Size = UDim2.new(0, 1200, 1, 0)
 discordText.Position = UDim2.new(0, 42, 0, 0)
 discordText.BackgroundTransparency = 1
 discordText.Font = Enum.Font.GothamBold
 discordText.TextSize = 13
-discordText.TextColor3 = Color3.fromRGB(200, 200, 200)
+discordText.TextColor3 = Color3.fromRGB(255, 255, 255)
 discordText.RichText = true
 discordText.TextXAlignment = Enum.TextXAlignment.Left
+discordText.AutoButtonColor = false
+discordText.Text = ""
+
+local function ColorToHex(color)
+    return string.format("#%02X%02X%02X", math.floor(color.R * 255), math.floor(color.G * 255), math.floor(color.B * 255))
+end
 
 task.spawn(function()
     local executor = "Unknown"
@@ -518,13 +432,54 @@ task.spawn(function()
         if identifyexecutor then executor = identifyexecutor() end
     end)
     local username = Player and Player.Name or "User"
+    
+    local rainbowHue = 0
+    local breathTimer = 0
+    
     while gui and gui.Parent do
-        discordText.Text = string.format("<font color='#AAAAAA'>⚓ USER:</font> %s  ┆  <font color='#AAAAAA'>⚡ EXECUTOR:</font> %s  ┆  <font color='#AAAAAA'>👑 CRE:</font> DaoHuyLam", username, executor)
-        discordText.Position = UDim2.new(1, 10, 0, 0)
-        local tween = TweenService:Create(discordText, TweenInfo.new(16, Enum.EasingStyle.Linear), {Position = UDim2.new(0, -700, 0, 0)})
+        local userHex = ColorToHex(Config.MarqueeUserColor)
+        local execHex = ColorToHex(Config.MarqueeExecutorColor)
+        local creHex = ColorToHex(Config.MarqueeCreColor)
+        
+        if MarqueeExtraConfig.UseRainbowText then
+            local r1, g1, b1 = Color3.toHSV(Color3.fromHSV(rainbowHue, 1, 1))
+            local r2, g2, b2 = Color3.toHSV(Color3.fromHSV((rainbowHue + 0.33) % 1, 1, 1))
+            local r3, g3, b3 = Color3.toHSV(Color3.fromHSV((rainbowHue + 0.66) % 1, 1, 1))
+            
+            userHex = ColorToHex(Color3.fromHSV(r1, 1, 1))
+            execHex = ColorToHex(Color3.fromHSV(r2, 1, 1))
+            creHex = ColorToHex(Color3.fromHSV(r3, 1, 1))
+            
+            rainbowHue = rainbowHue + MarqueeExtraConfig.RainbowSpeed
+            if rainbowHue >= 1 then rainbowHue = 0 end
+        end
+
+        if MarqueeExtraConfig.EnableBreathing then
+            breathTimer = breathTimer + 0.05
+            discordText.TextTransparency = 0.12 + (math.sin(breathTimer) * 0.12)
+        else
+            discordText.TextTransparency = 0
+        end
+        
+        discordText.Text = string.format(
+            "<font color='#00E5FF'>✦</font> <font color='#AAAAAA'>USER:</font> <font color='%s'><b>%s</b></font>  <font color='#505060'>|</font>  <font color='#00E5FF'>⚡</font> <font color='#AAAAAA'>EXECUTOR:</font> <font color='%s'><b>%s</b></font>  <font color='#505060'>|</font>  <font color='#00E5FF'>👑</font> <font color='#AAAAAA'>CRE:</font> <font color='%s'><b>DaoHuyLam</b></font> <font color='#00E5FF'>✦</font>", 
+            userHex, username, execHex, executor, creHex
+        )
+        
+        discordText.Position = UDim2.new(0, 42, 0, 0)
+        local textWidth = discordText.TextBounds.X + 150
+        discordText.Position = UDim2.new(0, discordBox.AbsoluteSize.X, 0, 0)
+        
+        local speed = 75
+        local distance = discordBox.AbsoluteSize.X + textWidth
+        local timeTaken = distance / speed
+        
+        local tween = TweenService:Create(discordText, TweenInfo.new(timeTaken, Enum.EasingStyle.Linear), {Position = UDim2.new(0, -textWidth, 0, 0)})
         tween:Play()
-        tween.Completed:Wait()
-        task.wait(0.5)
+        
+        while tween.PlaybackState == Enum.PlaybackState.Playing and gui and gui.Parent do
+            task.wait(0.1)
+        end
     end
 end)
 
@@ -702,7 +657,7 @@ OpenHome = function()
 end
 
 ----------------------------------------------------------------------
--- PHẦN SUPPORT GAME
+-- PHẦN SUPPORT GAME (ĐÃ XÓA HOÀN TOÀN ICON)
 ----------------------------------------------------------------------
 OpenSupport = function()
     ClearContent()
@@ -718,10 +673,34 @@ OpenSupport = function()
     titleLbl.TextColor3 = Color3.fromRGB(240, 240, 240)
     titleLbl.TextXAlignment = Enum.TextXAlignment.Left
 
+    local searchBox = Instance.new("TextBox")
+    searchBox.Parent = pageContainer
+    searchBox.Position = UDim2.new(0, 15, 0, 40)
+    searchBox.Size = UDim2.new(1, -25, 0, 32)
+    searchBox.BackgroundColor3 = Config.BgCategory
+    searchBox.BorderSizePixel = 0
+    searchBox.Font = Enum.Font.Gotham
+    searchBox.PlaceholderText = "🔍 Search supported games..."
+    searchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 135)
+    searchBox.Text = ""
+    searchBox.TextColor3 = Color3.fromRGB(240, 240, 240)
+    searchBox.TextSize = 12
+    searchBox.ClearTextOnFocus = false
+    Instance.new("UICorner", searchBox).CornerRadius = UDim.new(0, 8)
+
+    local searchStroke = Instance.new("UIStroke")
+    searchStroke.Parent = searchBox
+    searchStroke.Color = Config.BorderColor
+    searchStroke.Thickness = 1
+
+    local searchPad = Instance.new("UIPadding")
+    searchPad.Parent = searchBox
+    searchPad.PaddingLeft = UDim.new(0, 12)
+
     local scrollHolder = Instance.new("ScrollingFrame")
     scrollHolder.Parent = pageContainer
-    scrollHolder.Position = UDim2.new(0, 15, 0, 40)
-    scrollHolder.Size = UDim2.new(1, -25, 1, -50)
+    scrollHolder.Position = UDim2.new(0, 15, 0, 80)
+    scrollHolder.Size = UDim2.new(1, -25, 1, -90)
     scrollHolder.BackgroundTransparency = 1
     scrollHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
     scrollHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -731,7 +710,9 @@ OpenSupport = function()
     local uiList = Instance.new("UIListLayout")
     uiList.Parent = scrollHolder
     uiList.SortOrder = Enum.SortOrder.LayoutOrder
-    uiList.Padding = UDim.new(0, 12)
+    uiList.Padding = UDim.new(0, 14)
+
+    local categoryFrames = {}
 
     for _, catData in ipairs(SupportedCategories) do
         local catFrame = Instance.new("Frame")
@@ -749,7 +730,7 @@ OpenSupport = function()
 
         local catTitle = Instance.new("TextLabel")
         catTitle.Parent = catFrame
-        catTitle.Position = UDim2.new(0, 12, 0, 8)
+        catTitle.Position = UDim2.new(0, 12, 0, 10)
         catTitle.Size = UDim2.new(1, -24, 0, 20)
         catTitle.BackgroundTransparency = 1
         catTitle.Font = Enum.Font.GothamBold
@@ -758,17 +739,27 @@ OpenSupport = function()
         catTitle.TextColor3 = Config.ThemeColor
         catTitle.TextXAlignment = Enum.TextXAlignment.Left
 
-        local catList = Instance.new("UIListLayout")
-        catList.Parent = catFrame
-        catList.SortOrder = Enum.SortOrder.LayoutOrder
-        catList.Padding = UDim.new(0, 6)
+        local gameGridContainer = Instance.new("Frame")
+        gameGridContainer.Parent = catFrame
+        gameGridContainer.Position = UDim2.new(0, 10, 0, 36)
+        gameGridContainer.Size = UDim2.new(1, -20, 0, 0)
+        gameGridContainer.BackgroundTransparency = 1
+        gameGridContainer.AutomaticSize = Enum.AutomaticSize.Y
+
+        local gridLayout = Instance.new("UIGridLayout")
+        gridLayout.Parent = gameGridContainer
+        gridLayout.CellSize = UDim2.new(0.485, 0, 0, 52)
+        gridLayout.CellPadding = UDim2.new(0.03, 0, 0, 10)
+        gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
         local pad = Instance.new("UIPadding")
         pad.Parent = catFrame
-        pad.PaddingTop = UDim.new(0, 32)
-        pad.PaddingBottom = UDim.new(0, 8)
-        pad.PaddingLeft = UDim.new(0, 8)
-        pad.PaddingRight = UDim.new(0, 8)
+        pad.PaddingTop = UDim.new(0, 36)
+        pad.PaddingBottom = UDim.new(0, 12)
+        pad.PaddingLeft = UDim.new(0, 10)
+        pad.PaddingRight = UDim.new(0, 10)
+
+        local gameCards = {}
 
         for _, gameData in ipairs(catData.Games) do
             local isCurrentGame = false
@@ -779,99 +770,97 @@ OpenSupport = function()
                 end
             end
 
-            local isEvomon = (gameData.Name == "Evomon")
+            local isWorking = (gameData.Name == "Evomon" or gameData.Name == "Blox Fruits")
 
             local card = Instance.new("Frame")
-            card.Parent = catFrame
-            card.Size = UDim2.new(1, 0, 0, 42)
-            card.BackgroundColor3 = isCurrentGame and Color3.fromRGB(28, 40, 55) or Config.BgCard
+            card.Parent = gameGridContainer
+            card.Size = UDim2.new(1, 0, 0, 52)
+            card.BackgroundColor3 = isCurrentGame and Color3.fromRGB(28, 45, 65) or Config.BgCard
             card.BorderSizePixel = 0
             Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
 
             local cardStroke = Instance.new("UIStroke")
             cardStroke.Parent = card
             cardStroke.Thickness = isCurrentGame and 2 or 1
+            cardStroke.Color = isCurrentGame and Config.ThemeColor or Config.BorderColor
 
-            if isCurrentGame then
-                cardStroke.Color = Config.ThemeColor
-                task.spawn(function()
-                    local hue = 0
-                    while card and card.Parent do
-                        if Config.RainbowBorder then
-                            cardStroke.Color = Color3.fromHSV(hue, 0.8, 1)
-                        else
-                            cardStroke.Color = Config.ThemeColor
-                        end
-                        hue = hue + 0.01
-                        if hue >= 1 then hue = 0 end
-                        task.wait(0.03)
-                    end
-                end)
-            else
-                cardStroke.Color = Config.BorderColor
-            end
-
-            local icon = Instance.new("ImageLabel")
-            icon.Parent = card
-            icon.Size = UDim2.new(0, 26, 0, 26)
-            icon.Position = UDim2.new(0, 8, 0.5, -13)
-            icon.BackgroundTransparency = 1
-            icon.Image = gameData.Icon
-            icon.ScaleType = Enum.ScaleType.Fit
+            card.MouseEnter:Connect(function()
+                if not isCurrentGame then
+                    TweenService:Create(card, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(32, 32, 42)}):Play()
+                    TweenService:Create(cardStroke, TweenInfo.new(0.2), {Color = Config.ThemeColor}):Play()
+                end
+            end)
+            card.MouseLeave:Connect(function()
+                if not isCurrentGame then
+                    TweenService:Create(card, TweenInfo.new(0.2), {BackgroundColor3 = Config.BgCard}):Play()
+                    TweenService:Create(cardStroke, TweenInfo.new(0.2), {Color = Config.BorderColor}):Play()
+                end
+            end)
 
             local gameTitle = Instance.new("TextLabel")
             gameTitle.Parent = card
-            gameTitle.Position = UDim2.new(0, 42, 0, 0)
-            gameTitle.Size = UDim2.new(1, -145, 1, 0)
+            gameTitle.Position = UDim2.new(0, 12, 0, 6)
+            gameTitle.Size = UDim2.new(1, -20, 0, 18)
             gameTitle.BackgroundTransparency = 1
             gameTitle.Font = Enum.Font.GothamBold
             gameTitle.Text = gameData.Name
-            gameTitle.TextSize = 13
-            gameTitle.TextColor3 = isCurrentGame and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 200, 210)
+            gameTitle.TextSize = 11.5
+            gameTitle.TextColor3 = isCurrentGame and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(220, 220, 230)
             gameTitle.TextXAlignment = Enum.TextXAlignment.Left
+            gameTitle.TextTruncate = Enum.TextTruncate.AtEnd
 
-            local badgeWidth = isEvomon and 100 or 112
             local badge = Instance.new("Frame")
             badge.Parent = card
-            badge.Size = UDim2.new(0, badgeWidth, 0, 22)
-            badge.Position = UDim2.new(1, -badgeWidth - 8, 0.5, -11)
-            badge.BackgroundColor3 = isEvomon and Color3.fromRGB(20, 60, 35) or Color3.fromRGB(60, 20, 20)
+            badge.Size = UDim2.new(0, 85, 0, 18)
+            badge.Position = UDim2.new(0, 12, 0, 28)
+            badge.BackgroundColor3 = isWorking and Color3.fromRGB(20, 60, 35) or Color3.fromRGB(60, 20, 20)
             badge.BorderSizePixel = 0
-            Instance.new("UICorner", badge).CornerRadius = UDim.new(0, 6)
+            Instance.new("UICorner", badge).CornerRadius = UDim.new(0, 4)
 
             local circleGreenRed = Instance.new("Frame")
             circleGreenRed.Parent = badge
-            circleGreenRed.Size = UDim2.new(0, 8, 0, 8)
-            circleGreenRed.Position = UDim2.new(0, 8, 0.5, -4)
-            circleGreenRed.BackgroundColor3 = isEvomon and Color3.fromRGB(50, 230, 80) or Color3.fromRGB(230, 50, 50)
+            circleGreenRed.Size = UDim2.new(0, 6, 0, 6)
+            circleGreenRed.Position = UDim2.new(0, 6, 0.5, -3)
+            circleGreenRed.BackgroundColor3 = isWorking and Color3.fromRGB(50, 230, 80) or Color3.fromRGB(230, 50, 50)
             circleGreenRed.BorderSizePixel = 0
             Instance.new("UICorner", circleGreenRed).CornerRadius = UDim.new(1, 0)
 
             local badgeText = Instance.new("TextLabel")
             badgeText.Parent = badge
-            badgeText.Size = UDim2.new(1, -20, 1, 0)
-            badgeText.Position = UDim2.new(0, 18, 0, 0)
+            badgeText.Size = UDim2.new(1, -14, 1, 0)
+            badgeText.Position = UDim2.new(0, 14, 0, 0)
             badgeText.BackgroundTransparency = 1
             badgeText.Font = Enum.Font.GothamBold
-            badgeText.Text = isEvomon and "WORKING" or "NOT WORKING"
-            badgeText.TextSize = 9
+            badgeText.Text = isWorking and "WORKING" or "OFFLINE"
+            badgeText.TextSize = 8.5
             badgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
             badgeText.TextXAlignment = Enum.TextXAlignment.Center
 
-            task.spawn(function()
-                while badge and badge.Parent do
-                    TweenService:Create(circleGreenRed, TweenInfo.new(0.6), {BackgroundTransparency = 0.2}):Play()
-                    task.wait(0.6)
-                    TweenService:Create(circleGreenRed, TweenInfo.new(0.6), {BackgroundTransparency = 0.8}):Play()
-                    task.wait(0.6)
-                end
-            end)
+            table.insert(gameCards, {Card = card, Name = string.lower(gameData.Name)})
         end
+
+        table.insert(categoryFrames, {Frame = catFrame, Cards = gameCards})
     end
+
+    searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+        local query = string.lower(searchBox.Text)
+        for _, cat in ipairs(categoryFrames) do
+            local visibleCount = 0
+            for _, gCard in ipairs(cat.Cards) do
+                if query == "" or string.find(gCard.Name, query) then
+                    gCard.Card.Visible = true
+                    visibleCount = visibleCount + 1
+                else
+                    gCard.Card.Visible = false
+                end
+            end
+            cat.Frame.Visible = (visibleCount > 0)
+        end
+    end)
 end
 
 ----------------------------------------------------------------------
--- CỬA SỔ SETTINGS (BẢNG CHỌN ĐẦY ĐỦ MÀU SẮC THEME)
+-- CỬA SỔ SETTINGS
 ----------------------------------------------------------------------
 OpenSettings = function()
     ClearContent()
@@ -1042,8 +1031,133 @@ OpenSettings = function()
         end)
     end
 
+    local function CreateColorPickerRow(parent, name, desc, configKey)
+        local card = Instance.new("Frame")
+        card.Parent = parent
+        card.Size = UDim2.new(1, 0, 0, 48)
+        card.BackgroundColor3 = Config.BgCard
+        Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
+
+        local nameLbl = Instance.new("TextLabel")
+        nameLbl.Parent = card
+        nameLbl.Position = UDim2.new(0, 10, 0, 6)
+        nameLbl.Size = UDim2.new(1, -120, 0, 18)
+        nameLbl.BackgroundTransparency = 1
+        nameLbl.Font = Enum.Font.GothamBold
+        nameLbl.Text = name
+        nameLbl.TextSize = 12
+        nameLbl.TextColor3 = Color3.fromRGB(230, 230, 235)
+        nameLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+        local descLbl = Instance.new("TextLabel")
+        descLbl.Parent = card
+        descLbl.Position = UDim2.new(0, 10, 0, 24)
+        descLbl.Size = UDim2.new(1, -120, 0, 18)
+        descLbl.BackgroundTransparency = 1
+        descLbl.Font = Enum.Font.Gotham
+        descLbl.Text = desc
+        descLbl.TextSize = 10
+        descLbl.TextColor3 = Color3.fromRGB(140, 140, 150)
+        descLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+        local colorBtn = Instance.new("TextButton")
+        colorBtn.Parent = card
+        colorBtn.Size = UDim2.new(0, 100, 0, 28)
+        colorBtn.Position = UDim2.new(1, -110, 0.5, -14)
+        colorBtn.BackgroundColor3 = Config[configKey]
+        colorBtn.Text = "🎨 Pick Color"
+        colorBtn.Font = Enum.Font.GothamBold
+        colorBtn.TextSize = 10
+        colorBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Instance.new("UICorner", colorBtn).CornerRadius = UDim.new(0, 6)
+
+        local colStroke = Instance.new("UIStroke")
+        colStroke.Parent = colorBtn
+        colStroke.Color = Config.BorderColor
+        colStroke.Thickness = 1
+
+        local dropdown = Instance.new("Frame")
+        dropdown.Parent = parent
+        dropdown.Size = UDim2.new(1, 0, 0, 0)
+        dropdown.AutomaticSize = Enum.AutomaticSize.Y
+        dropdown.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+        dropdown.Visible = false
+        Instance.new("UICorner", dropdown).CornerRadius = UDim.new(0, 8)
+
+        local dropStroke = Instance.new("UIStroke")
+        dropStroke.Parent = dropdown
+        dropStroke.Color = Config.BorderColor
+        dropStroke.Thickness = 1
+
+        local grid = Instance.new("UIGridLayout")
+        grid.Parent = dropdown
+        grid.CellSize = UDim2.new(0, 70, 0, 52)
+        grid.CellPadding = UDim2.new(0, 8, 0, 8)
+        grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+        local pad = Instance.new("UIPadding")
+        pad.Parent = dropdown
+        pad.PaddingTop = UDim.new(0, 10)
+        pad.PaddingBottom = UDim.new(0, 10)
+        pad.PaddingLeft = UDim.new(0, 10)
+        pad.PaddingRight = UDim.new(0, 10)
+
+        local palette = {
+            { Name = "Cyan Neon", Color = Color3.fromRGB(0, 229, 255) },
+            { Name = "Royal Blue", Color = Color3.fromRGB(0, 150, 255) },
+            { Name = "Emerald", Color = Color3.fromRGB(50, 215, 75) },
+            { Name = "Mint Green", Color = Color3.fromRGB(74, 222, 128) },
+            { Name = "Purple", Color = Color3.fromRGB(168, 85, 247) },
+            { Name = "Pink Neon", Color = Color3.fromRGB(236, 72, 153) },
+            { Name = "Ruby Red", Color = Color3.fromRGB(255, 75, 75) },
+            { Name = "Fire Orange", Color = Color3.fromRGB(255, 159, 10) },
+            { Name = "Gold Yellow", Color = Color3.fromRGB(255, 215, 0) },
+            { Name = "Pure White", Color = Color3.fromRGB(255, 255, 255) },
+            { Name = "Silver Gray", Color = Color3.fromRGB(156, 163, 175) },
+            { Name = "Dark Gray", Color = Color3.fromRGB(100, 100, 110) }
+        }
+
+        for _, item in ipairs(palette) do
+            local itemFrame = Instance.new("Frame")
+            itemFrame.Parent = dropdown
+            itemFrame.BackgroundTransparency = 1
+            itemFrame.Size = UDim2.new(0, 70, 0, 52)
+
+            local itemBtn = Instance.new("TextButton")
+            itemBtn.Parent = itemFrame
+            itemBtn.Size = UDim2.new(0, 32, 0, 32)
+            itemBtn.Position = UDim2.new(0.5, -16, 0, 0)
+            itemBtn.BackgroundColor3 = item.Color
+            itemBtn.Text = ""
+            itemBtn.AutoButtonColor = false
+            Instance.new("UICorner", itemBtn).CornerRadius = UDim.new(1, 0)
+
+            local itemName = Instance.new("TextLabel")
+            itemName.Parent = itemFrame
+            itemName.Size = UDim2.new(1, 0, 0, 16)
+            itemName.Position = UDim2.new(0, 0, 0, 34)
+            itemName.BackgroundTransparency = 1
+            itemName.Font = Enum.Font.GothamBold
+            itemName.Text = item.Name
+            itemName.TextSize = 9
+            itemName.TextColor3 = Color3.fromRGB(180, 180, 190)
+            itemName.TextXAlignment = Enum.TextXAlignment.Center
+
+            itemBtn.MouseButton1Click:Connect(function()
+                Config[configKey] = item.Color
+                colorBtn.BackgroundColor3 = item.Color
+                dropdown.Visible = false
+            end)
+        end
+
+        colorBtn.MouseButton1Click:Connect(function()
+            dropdown.Visible = not dropdown.Visible
+        end)
+    end
+
     local appearanceCat = CreateCategory(L("CatAppearance"))
     CreateSettingToggle(appearanceCat, L("RainbowToggle"), L("RainbowDesc"), "RainbowBorder")
+    CreateSettingToggle(appearanceCat, L("AnimToggle"), L("AnimDesc"), "GUIAnimation")
 
     local themeCard = Instance.new("Frame")
     themeCard.Parent = appearanceCat
@@ -1077,7 +1191,7 @@ OpenSettings = function()
     themeToggleBtn.Parent = themeCard
     themeToggleBtn.Size = UDim2.new(0, 100, 0, 28)
     themeToggleBtn.Position = UDim2.new(1, -110, 0.5, -14)
-    themeToggleBtn.BackgroundColor3 = Color3.fromRGB(32, 32, 42)
+    themeToggleBtn.BackgroundColor3 = Config.ThemeColor
     themeToggleBtn.Text = "🎨 Select Color"
     themeToggleBtn.Font = Enum.Font.GothamBold
     themeToggleBtn.TextSize = 10
@@ -1162,6 +1276,7 @@ OpenSettings = function()
 
         colBtn.MouseButton1Click:Connect(function()
             Config.ThemeColor = item.Color
+            themeToggleBtn.BackgroundColor3 = item.Color
             themeDropdown.Visible = false
             RefreshUI()
         end)
@@ -1171,11 +1286,19 @@ OpenSettings = function()
         themeDropdown.Visible = not themeDropdown.Visible
     end)
 
-    CreateSettingToggle(appearanceCat, L("AnimToggle"), L("AnimDesc"), "GUIAnimation")
+    local footerColorsCat = CreateCategory(L("CatFooterColors"))
+    CreateColorPickerRow(footerColorsCat, L("MarqueeUserTitle"), L("MarqueeUserDesc"), "MarqueeUserColor")
+    CreateColorPickerRow(footerColorsCat, L("MarqueeExecutorTitle"), L("MarqueeExecutorDesc"), "MarqueeExecutorColor")
+    CreateColorPickerRow(footerColorsCat, L("MarqueeCreTitle"), L("MarqueeCreDesc"), "MarqueeCreColor")
 
     local systemCat = CreateCategory(L("CatSystem"))
     CreateSettingToggle(systemCat, L("DebugToggle"), L("DebugDesc"), "ShowDebug", function(val)
-        debugFrame.Visible = val
+        if debugSidebarFrame then
+            debugSidebarFrame.Visible = val
+        end
+        if keyStatusSidebarFrame then
+            keyStatusSidebarFrame.Visible = val
+        end
     end)
 
     local keyCard = Instance.new("Frame")
@@ -1370,6 +1493,15 @@ local function CreateSideButton(textKey, y, image)
     dot.BorderSizePixel = 0
     Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
 
+    task.spawn(function()
+        while dot and dot.Parent do
+            TweenService:Create(dot, TweenInfo.new(0.6), {BackgroundTransparency = 0.2, Size = UDim2.new(0, 7, 0, 7), Position = UDim2.new(0, 7, 0.5, -3.5)}):Play()
+            task.wait(0.6)
+            TweenService:Create(dot, TweenInfo.new(0.6), {BackgroundTransparency = 0.8, Size = UDim2.new(0, 4, 0, 4), Position = UDim2.new(0, 8.5, 0.5, -2)}):Play()
+            task.wait(0.6)
+        end
+    end)
+
     local icon = Instance.new("ImageLabel")
     icon.Parent = btn
     icon.Size = UDim2.new(0, 16, 0, 16)
@@ -1398,6 +1530,194 @@ end
 local HomeBtn = CreateSideButton("Home", 18, "rbxassetid://108029482244357")
 local SupportBtn = CreateSideButton("Support", 64, "rbxassetid://86514728032684")
 local SettingBtn = CreateSideButton("Setting", 110, "rbxassetid://99627454901549")
+
+----------------------------------------------------------------------
+-- DEBUG OVERLAY
+----------------------------------------------------------------------
+debugSidebarFrame = Instance.new("Frame")
+debugSidebarFrame.Name = "DebugSidebar"
+debugSidebarFrame.Parent = sidebar
+debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
+debugSidebarFrame.Position = UDim2.new(0, 5, 1, -162)
+debugSidebarFrame.BackgroundColor3 = Config.BgCard
+debugSidebarFrame.BackgroundTransparency = 0
+debugSidebarFrame.BorderSizePixel = 0
+debugSidebarFrame.Visible = Config.ShowDebug
+
+Instance.new("UICorner", debugSidebarFrame).CornerRadius = UDim.new(0, 8)
+
+local debugSidebarStroke = Instance.new("UIStroke")
+debugSidebarStroke.Parent = debugSidebarFrame
+debugSidebarStroke.Thickness = 1
+debugSidebarStroke.Color = Config.BorderColor
+
+local debugSidebarText = Instance.new("TextLabel")
+debugSidebarText.Parent = debugSidebarFrame
+debugSidebarText.Size = UDim2.new(1, -6, 1, -6)
+debugSidebarText.Position = UDim2.new(0, 3, 0, 3)
+debugSidebarText.BackgroundTransparency = 1
+debugSidebarText.Font = Enum.Font.Code
+debugSidebarText.TextSize = 10
+debugSidebarText.TextColor3 = Color3.fromRGB(240, 240, 240)
+debugSidebarText.TextXAlignment = Enum.TextXAlignment.Left
+debugSidebarText.TextYAlignment = Enum.TextYAlignment.Top
+debugSidebarText.RichText = true
+
+----------------------------------------------------------------------
+-- KEY STATUS
+----------------------------------------------------------------------
+keyStatusSidebarFrame = Instance.new("Frame")
+keyStatusSidebarFrame.Name = "KeyStatusSidebar"
+keyStatusSidebarFrame.Parent = sidebar
+keyStatusSidebarFrame.Size = UDim2.new(1, -16, 0, 54)
+keyStatusSidebarFrame.Position = UDim2.new(0, 8, 1, -62)
+keyStatusSidebarFrame.BackgroundColor3 = Config.BgCard
+keyStatusSidebarFrame.BackgroundTransparency = 0
+keyStatusSidebarFrame.BorderSizePixel = 0
+keyStatusSidebarFrame.Visible = Config.ShowDebug
+
+Instance.new("UICorner", keyStatusSidebarFrame).CornerRadius = UDim.new(0, 8)
+
+local keyStatusStroke = Instance.new("UIStroke")
+keyStatusStroke.Parent = keyStatusSidebarFrame
+keyStatusStroke.Thickness = 1
+keyStatusStroke.Color = Config.BorderColor
+
+local keyStatusTitle = Instance.new("TextLabel")
+keyStatusTitle.Parent = keyStatusSidebarFrame
+keyStatusTitle.Size = UDim2.new(1, -12, 0, 16)
+keyStatusTitle.Position = UDim2.new(0, 8, 0, 4)
+keyStatusTitle.BackgroundTransparency = 1
+keyStatusTitle.Font = Enum.Font.GothamBold
+keyStatusTitle.TextSize = 10
+keyStatusTitle.TextColor3 = Color3.fromRGB(0, 180, 255)
+keyStatusTitle.Text = "KEY STATUS"
+keyStatusTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local keyInnerCard = Instance.new("Frame")
+keyInnerCard.Parent = keyStatusSidebarFrame
+keyInnerCard.Size = UDim2.new(1, -12, 0, 26)
+keyInnerCard.Position = UDim2.new(0, 6, 0, 22)
+keyInnerCard.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+keyInnerCard.BorderSizePixel = 0
+Instance.new("UICorner", keyInnerCard).CornerRadius = UDim.new(0, 6)
+
+local greenDotKey = Instance.new("Frame")
+greenDotKey.Parent = keyInnerCard
+greenDotKey.Size = UDim2.new(0, 8, 0, 8)
+greenDotKey.Position = UDim2.new(0, 8, 0.5, -4)
+greenDotKey.BackgroundColor3 = Color3.fromRGB(50, 230, 80)
+greenDotKey.BorderSizePixel = 0
+Instance.new("UICorner", greenDotKey).CornerRadius = UDim.new(1, 0)
+
+task.spawn(function()
+    while greenDotKey and greenDotKey.Parent do
+        TweenService:Create(greenDotKey, TweenInfo.new(0.6), {BackgroundTransparency = 0.2}):Play()
+        task.wait(0.6)
+        TweenService:Create(greenDotKey, TweenInfo.new(0.6), {BackgroundTransparency = 0.8}):Play()
+        task.wait(0.6)
+    end
+end)
+
+local keyNameLabel = Instance.new("TextLabel")
+keyNameLabel.Parent = keyInnerCard
+keyNameLabel.Size = UDim2.new(0, 80, 1, 0)
+keyNameLabel.Position = UDim2.new(0, 22, 0, 0)
+keyNameLabel.BackgroundTransparency = 1
+keyNameLabel.Font = Enum.Font.GothamBold
+keyNameLabel.TextSize = 11
+keyNameLabel.TextColor3 = Color3.fromRGB(240, 240, 240)
+keyNameLabel.Text = "RightShift"
+keyNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local keyActiveLabel = Instance.new("TextLabel")
+keyActiveLabel.Parent = keyInnerCard
+keyActiveLabel.Size = UDim2.new(1, -100, 1, 0)
+keyActiveLabel.Position = UDim2.new(0, 95, 0, 0)
+keyActiveLabel.BackgroundTransparency = 1
+keyActiveLabel.Font = Enum.Font.GothamBold
+keyActiveLabel.TextSize = 11
+keyActiveLabel.TextColor3 = Color3.fromRGB(50, 230, 80)
+keyActiveLabel.Text = "ACTIVE"
+keyActiveLabel.TextXAlignment = Enum.TextXAlignment.Right
+
+task.spawn(function()
+    while gui and gui.Parent do
+        if Config.ToggleKey then
+            keyNameLabel.Text = Config.ToggleKey.Name
+        end
+        task.wait(1)
+    end
+end)
+
+local frameCount = 0
+local lastFpsUpdate = os.clock()
+local currentFps = 60
+
+RunService.RenderStepped:Connect(function()
+    frameCount = frameCount + 1
+    local now = os.clock()
+    if now - lastFpsUpdate >= 1 then
+        currentFps = math.floor(frameCount / (now - lastFpsUpdate))
+        frameCount = 0
+        lastFpsUpdate = now
+    end
+end)
+
+task.spawn(function()
+    while gui and gui.Parent do
+        if Config.ShowDebug then
+            local ping = 0
+            pcall(function()
+                ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue())
+            end)
+
+            local time24h = os.date("%H:%M:%S")
+            local playerCount = #Players:GetPlayers()
+            local maxPlayers = Players.MaxPlayers
+            local keyStatus = ""
+            local isAdmin = false
+
+            if SavedKey == "DaoHuyLam22052009" or SavedKey == "DaoHuyHoang19102006" then
+                keyStatus = "<font color='#FFDF00'>👑 Admin</font>"
+                isAdmin = true
+            elseif KeyExpirationTimestamp == 0 then
+                keyStatus = "<font color='#AAAAAA'>No Key</font>"
+            else
+                local remainingSeconds = KeyExpirationTimestamp - os.time()
+                if remainingSeconds <= 0 then
+                    keyStatus = "<font color='#FF4B4B'>Expired</font>"
+                else
+                    local hours = math.floor(remainingSeconds / 3600)
+                    local mins = math.floor((remainingSeconds % 3600) / 60)
+                    local secs = remainingSeconds % 60
+                    keyStatus = string.format("<font color='#50D74B'>%02dh %02dm %02ds</font>", hours, mins, secs)
+                end
+            end
+
+            if isAdmin then
+                debugSidebarFrame.Size = UDim2.new(1, -10, 0, 94)
+                debugSidebarText.Text = string.format(
+                    "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
+                    "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
+                    "🕒 <b>TIME:</b> %s\n" ..
+                    "🔑 <b>KEY EXP:</b>\n   └ %s",
+                    currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
+                )
+            else
+                debugSidebarFrame.Size = UDim2.new(1, -10, 0, 84)
+                debugSidebarText.Text = string.format(
+                    "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
+                    "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
+                    "🕒 <b>TIME:</b> %s\n" ..
+                    "🔑 <b>KEY:</b> %s",
+                    currentFps, ping, playerCount, maxPlayers, time24h, keyStatus
+                )
+            end
+        end
+        task.wait(0.5)
+    end
+end)
 
 local function SelectButton(btn)
     if CurrentButton == btn then return end
