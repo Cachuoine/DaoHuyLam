@@ -1,5 +1,5 @@
--- [ĐÃ CẬP NHẬT] Giao diện FishHub (bloxfruit.lua) được đồng bộ hoàn toàn với UI.lua
--- Giữ nguyên trọn vẹn danh sách script Blox Fruits và chức năng Home tùy chỉnh ở phiên bản cũ.
+-- [ĐÃ CẬP NHẬT] Giao diện FishHub (UI.lua hoàn chỉnh)
+-- Đã xóa cài đặt footer text colors và cố định màu dòng chạy: User (Xanh lam), Executor (Tím), CRE (Đỏ).
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -86,9 +86,10 @@ local Config = {
     Language = "EN",
     ToggleKey = Enum.KeyCode.RightShift,
     
-    MarqueeUserColor = Color3.fromRGB(0, 229, 255),      
-    MarqueeExecutorColor = Color3.fromRGB(168, 85, 247), 
-    MarqueeCreColor = Color3.fromRGB(255, 75, 75),       
+    -- Màu cố định cho dòng chạy
+    MarqueeUserColor = Color3.fromRGB(0, 150, 255),      -- Xanh lam
+    MarqueeExecutorColor = Color3.fromRGB(168, 85, 247), -- Tím
+    MarqueeCreColor = Color3.fromRGB(255, 75, 75),       -- Đỏ
     
     ThemeColor = Color3.fromRGB(0, 229, 255),       
     BgMain = Color3.fromRGB(16, 16, 20),           
@@ -103,8 +104,6 @@ local Config = {
 }
 
 local MarqueeExtraConfig = {
-    UseRainbowText = true,      
-    RainbowSpeed = 0.002,       
     EnableBreathing = true,     
 }
 
@@ -118,7 +117,6 @@ local Translations = {
         SupportTitle = "🎮 Supported Games List",
         
         CatAppearance = "🎨 Visual & Theme",
-        CatFooterColors = "👤 Footer Text Colors",
         CatSystem = "⚙️ System & Controls",
         CatActions = "⚡ Quick Utilities",
 
@@ -136,13 +134,6 @@ local Translations = {
         ThemeDesc = "Choose a custom color theme for FishHub UI.",
         DebugToggle = "📊 Debug Overlay",
         DebugDesc = "Display FPS, Ping, Players, Time and Key Status.",
-
-        MarqueeUserTitle = "👤 User Text Color",
-        MarqueeUserDesc = "Change text color for the User section.",
-        MarqueeExecutorTitle = "⚡ Executor Text Color",
-        MarqueeExecutorDesc = "Change text color for the Executor section.",
-        MarqueeCreTitle = "👑 Creator Text Color",
-        MarqueeCreDesc = "Change text color for the Creator (CRE) section.",
 
         RejoinBtn = "🔄 Rejoin Game",
         HopBtn = "🌐 Server Hop",
@@ -163,7 +154,6 @@ local Translations = {
         SupportTitle = "🎮 Danh Sách Game Hỗ Trợ",
 
         CatAppearance = "🎨 Giao Diện & Theme",
-        CatFooterColors = "👤 Màu Chữ Dòng Chạy (Footer)",
         CatSystem = "⚙️ Hệ Thống & Phím Tắt",
         CatActions = "⚡ Công Cụ Nhanh",
 
@@ -181,13 +171,6 @@ local Translations = {
         ThemeDesc = "Chọn màu chủ đề độc đáo cho giao diện FishHub.",
         DebugToggle = "📊 Bảng Debug Thông Số",
         DebugDesc = "Hiển thị FPS, Ping, Người chơi, Giờ và Key.",
-
-        MarqueeUserTitle = "👤 Màu Chữ Phần User",
-        MarqueeUserDesc = "Đổi màu riêng cho phần tên User ở dòng chạy.",
-        MarqueeExecutorTitle = "⚡ Màu Chữ Phần Executor",
-        MarqueeExecutorDesc = "Đổi màu riêng cho phần Executor ở dòng chạy.",
-        MarqueeCreTitle = "👑 Màu Chữ Phần Creator",
-        MarqueeCreDesc = "Đổi màu riêng cho phần Creator (CRE) ở dòng chạy.",
 
         RejoinBtn = "🔄 Vào Lại Server",
         HopBtn = "🌐 Chuyển Server",
@@ -436,26 +419,12 @@ task.spawn(function()
     end)
     local username = Player and Player.Name or "User"
     
-    local rainbowHue = 0
     local breathTimer = 0
     
     while gui and gui.Parent do
         local userHex = ColorToHex(Config.MarqueeUserColor)
         local execHex = ColorToHex(Config.MarqueeExecutorColor)
         local creHex = ColorToHex(Config.MarqueeCreColor)
-        
-        if MarqueeExtraConfig.UseRainbowText then
-            local r1, g1, b1 = Color3.toHSV(Color3.fromHSV(rainbowHue, 1, 1))
-            local r2, g2, b2 = Color3.toHSV(Color3.fromHSV((rainbowHue + 0.33) % 1, 1, 1))
-            local r3, g3, b3 = Color3.toHSV(Color3.fromHSV((rainbowHue + 0.66) % 1, 1, 1))
-            
-            userHex = ColorToHex(Color3.fromHSV(r1, 1, 1))
-            execHex = ColorToHex(Color3.fromHSV(r2, 1, 1))
-            creHex = ColorToHex(Color3.fromHSV(r3, 1, 1))
-            
-            rainbowHue = rainbowHue + MarqueeExtraConfig.RainbowSpeed
-            if rainbowHue >= 1 then rainbowHue = 0 end
-        end
 
         if MarqueeExtraConfig.EnableBreathing then
             breathTimer = breathTimer + 0.05
@@ -1081,130 +1050,6 @@ OpenSettings = function()
         end)
     end
 
-    local function CreateColorPickerRow(parent, name, desc, configKey)
-        local card = Instance.new("Frame")
-        card.Parent = parent
-        card.Size = UDim2.new(1, 0, 0, 48)
-        card.BackgroundColor3 = Config.BgCard
-        Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
-
-        local nameLbl = Instance.new("TextLabel")
-        nameLbl.Parent = card
-        nameLbl.Position = UDim2.new(0, 10, 0, 6)
-        nameLbl.Size = UDim2.new(1, -120, 0, 18)
-        nameLbl.BackgroundTransparency = 1
-        nameLbl.Font = Enum.Font.GothamBold
-        nameLbl.Text = name
-        nameLbl.TextSize = 12
-        nameLbl.TextColor3 = Color3.fromRGB(230, 230, 235)
-        nameLbl.TextXAlignment = Enum.TextXAlignment.Left
-
-        local descLbl = Instance.new("TextLabel")
-        descLbl.Parent = card
-        descLbl.Position = UDim2.new(0, 10, 0, 24)
-        descLbl.Size = UDim2.new(1, -120, 0, 18)
-        descLbl.BackgroundTransparency = 1
-        descLbl.Font = Enum.Font.Gotham
-        descLbl.Text = desc
-        descLbl.TextSize = 10
-        descLbl.TextColor3 = Color3.fromRGB(140, 140, 150)
-        descLbl.TextXAlignment = Enum.TextXAlignment.Left
-
-        local colorBtn = Instance.new("TextButton")
-        colorBtn.Parent = card
-        colorBtn.Size = UDim2.new(0, 100, 0, 28)
-        colorBtn.Position = UDim2.new(1, -110, 0.5, -14)
-        colorBtn.BackgroundColor3 = Config[configKey]
-        colorBtn.Text = "🎨 Pick Color"
-        colorBtn.Font = Enum.Font.GothamBold
-        colorBtn.TextSize = 10
-        colorBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        Instance.new("UICorner", colorBtn).CornerRadius = UDim.new(0, 6)
-
-        local colStroke = Instance.new("UIStroke")
-        colStroke.Parent = colorBtn
-        colStroke.Color = Config.BorderColor
-        colStroke.Thickness = 1
-
-        local dropdown = Instance.new("Frame")
-        dropdown.Parent = parent
-        dropdown.Size = UDim2.new(1, 0, 0, 0)
-        dropdown.AutomaticSize = Enum.AutomaticSize.Y
-        dropdown.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-        dropdown.Visible = false
-        Instance.new("UICorner", dropdown).CornerRadius = UDim.new(0, 8)
-
-        local dropStroke = Instance.new("UIStroke")
-        dropStroke.Parent = dropdown
-        dropStroke.Color = Config.BorderColor
-        dropStroke.Thickness = 1
-
-        local grid = Instance.new("UIGridLayout")
-        grid.Parent = dropdown
-        grid.CellSize = UDim2.new(0, 70, 0, 52)
-        grid.CellPadding = UDim2.new(0, 8, 0, 8)
-        grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-        local pad = Instance.new("UIPadding")
-        pad.Parent = dropdown
-        pad.PaddingTop = UDim.new(0, 10)
-        pad.PaddingBottom = UDim.new(0, 10)
-        pad.PaddingLeft = UDim.new(0, 10)
-        pad.PaddingRight = UDim.new(0, 10)
-
-        local palette = {
-            { Name = "Cyan Neon", Color = Color3.fromRGB(0, 229, 255) },
-            { Name = "Royal Blue", Color = Color3.fromRGB(0, 150, 255) },
-            { Name = "Emerald", Color = Color3.fromRGB(50, 215, 75) },
-            { Name = "Mint Green", Color = Color3.fromRGB(74, 222, 128) },
-            { Name = "Purple", Color = Color3.fromRGB(168, 85, 247) },
-            { Name = "Pink Neon", Color = Color3.fromRGB(236, 72, 153) },
-            { Name = "Ruby Red", Color = Color3.fromRGB(255, 75, 75) },
-            { Name = "Fire Orange", Color = Color3.fromRGB(255, 159, 10) },
-            { Name = "Gold Yellow", Color = Color3.fromRGB(255, 215, 0) },
-            { Name = "Pure White", Color = Color3.fromRGB(255, 255, 255) },
-            { Name = "Silver Gray", Color = Color3.fromRGB(156, 163, 175) },
-            { Name = "Dark Gray", Color = Color3.fromRGB(100, 100, 110) }
-        }
-
-        for _, item in ipairs(palette) do
-            local itemFrame = Instance.new("Frame")
-            itemFrame.Parent = dropdown
-            itemFrame.BackgroundTransparency = 1
-            itemFrame.Size = UDim2.new(0, 70, 0, 52)
-
-            local itemBtn = Instance.new("TextButton")
-            itemBtn.Parent = itemFrame
-            itemBtn.Size = UDim2.new(0, 32, 0, 32)
-            itemBtn.Position = UDim2.new(0.5, -16, 0, 0)
-            itemBtn.BackgroundColor3 = item.Color
-            itemBtn.Text = ""
-            itemBtn.AutoButtonColor = false
-            Instance.new("UICorner", itemBtn).CornerRadius = UDim.new(1, 0)
-
-            local itemName = Instance.new("TextLabel")
-            itemName.Parent = itemFrame
-            itemName.Size = UDim2.new(1, 0, 0, 16)
-            itemName.Position = UDim2.new(0, 0, 0, 34)
-            itemName.BackgroundTransparency = 1
-            itemName.Font = Enum.Font.GothamBold
-            itemName.Text = item.Name
-            itemName.TextSize = 9
-            itemName.TextColor3 = Color3.fromRGB(180, 180, 190)
-            itemName.TextXAlignment = Enum.TextXAlignment.Center
-
-            itemBtn.MouseButton1Click:Connect(function()
-                Config[configKey] = item.Color
-                colorBtn.BackgroundColor3 = item.Color
-                dropdown.Visible = false
-            end)
-        end
-
-        colorBtn.MouseButton1Click:Connect(function()
-            dropdown.Visible = not dropdown.Visible
-        end)
-    end
-
     local appearanceCat = CreateCategory(L("CatAppearance"))
     CreateSettingToggle(appearanceCat, L("RainbowToggle"), L("RainbowDesc"), "RainbowBorder")
     CreateSettingToggle(appearanceCat, L("AnimToggle"), L("AnimDesc"), "GUIAnimation")
@@ -1335,11 +1180,6 @@ OpenSettings = function()
     themeToggleBtn.MouseButton1Click:Connect(function()
         themeDropdown.Visible = not themeDropdown.Visible
     end)
-
-    local footerColorsCat = CreateCategory(L("CatFooterColors"))
-    CreateColorPickerRow(footerColorsCat, L("MarqueeUserTitle"), L("MarqueeUserDesc"), "MarqueeUserColor")
-    CreateColorPickerRow(footerColorsCat, L("MarqueeExecutorTitle"), L("MarqueeExecutorDesc"), "MarqueeExecutorColor")
-    CreateColorPickerRow(footerColorsCat, L("MarqueeCreTitle"), L("MarqueeCreDesc"), "MarqueeCreColor")
 
     local systemCat = CreateCategory(L("CatSystem"))
     CreateSettingToggle(systemCat, L("DebugToggle"), L("DebugDesc"), "ShowDebug", function(val)
@@ -1587,8 +1427,8 @@ local SettingBtn = CreateSideButton("Setting", 110, "rbxassetid://99627454901549
 debugSidebarFrame = Instance.new("Frame")
 debugSidebarFrame.Name = "DebugSidebar"
 debugSidebarFrame.Parent = sidebar
-debugSidebarFrame.Size = UDim2.new(1, -10, 0, 74)
-debugSidebarFrame.Position = UDim2.new(0, 5, 1, -142)
+debugSidebarFrame.Size = UDim2.new(1, -10, 0, 112)
+debugSidebarFrame.Position = UDim2.new(0, 5, 1, -178)
 debugSidebarFrame.BackgroundColor3 = Config.BgCard
 debugSidebarFrame.BackgroundTransparency = 0
 debugSidebarFrame.BorderSizePixel = 0
@@ -1619,8 +1459,8 @@ debugSidebarText.RichText = true
 keyStatusSidebarFrame = Instance.new("Frame")
 keyStatusSidebarFrame.Name = "KeyStatusSidebar"
 keyStatusSidebarFrame.Parent = sidebar
-keyStatusSidebarFrame.Size = UDim2.new(1, -16, 0, 54)
-keyStatusSidebarFrame.Position = UDim2.new(0, 8, 1, -62)
+keyStatusSidebarFrame.Size = UDim2.new(1, -10, 0, 54)
+keyStatusSidebarFrame.Position = UDim2.new(0, 5, 1, -64)
 keyStatusSidebarFrame.BackgroundColor3 = Config.BgCard
 keyStatusSidebarFrame.BackgroundTransparency = 0
 keyStatusSidebarFrame.BorderSizePixel = 0
@@ -1686,10 +1526,50 @@ keyActiveLabel.Size = UDim2.new(1, -100, 1, 0)
 keyActiveLabel.Position = UDim2.new(0, 95, 0, 0)
 keyActiveLabel.BackgroundTransparency = 1
 keyActiveLabel.Font = Enum.Font.GothamBold
-keyActiveLabel.TextSize = 11
+keyActiveLabel.TextSize = 10
 keyActiveLabel.TextColor3 = Color3.fromRGB(50, 230, 80)
-keyActiveLabel.Text = "ACTIVE"
+keyActiveLabel.Text = "LOADING..."
 keyActiveLabel.TextXAlignment = Enum.TextXAlignment.Right
+
+task.spawn(function()
+    if SavedKey == "DHL22052009" then
+        keyActiveLabel.Text = "LIFETIME"
+        keyActiveLabel.TextColor3 = Color3.fromRGB(255, 215, 0) 
+    elseif SavedKey ~= "" then
+        local url = "https://fishhub-35d18-default-rtdb.firebaseio.com/keys/" .. SavedKey .. ".json"
+        local success, response = pcall(function() return game:HttpGet(url) end)
+        
+        if success and response ~= "null" then
+            local data = HttpService:JSONDecode(response)
+            local createdAtSec = math.floor(data.createdAt / 1000)
+            local expireTime = createdAtSec + 86400 
+            
+            while gui and gui.Parent do
+                local currentTime = os.time()
+                local timeRemaining = expireTime - currentTime
+                
+                if timeRemaining > 0 then
+                    local h = math.floor(timeRemaining / 3600)
+                    local m = math.floor((timeRemaining % 3600) / 60)
+                    local s = timeRemaining % 60
+                    keyActiveLabel.Text = string.format("%02d:%02d:%02d", h, m, s)
+                    keyActiveLabel.TextColor3 = Color3.fromRGB(50, 230, 80) 
+                else
+                    keyActiveLabel.Text = "EXPIRED!"
+                    keyActiveLabel.TextColor3 = Color3.fromRGB(230, 50, 50) 
+                    break
+                end
+                task.wait(1)
+            end
+        else
+            keyActiveLabel.Text = "NO KEY"
+            keyActiveLabel.TextColor3 = Color3.fromRGB(230, 50, 50)
+        end
+    else
+        keyActiveLabel.Text = "NO KEY"
+        keyActiveLabel.TextColor3 = Color3.fromRGB(230, 50, 50)
+    end
+end)
 
 task.spawn(function()
     while gui and gui.Parent do
@@ -1722,15 +1602,22 @@ task.spawn(function()
                 ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue())
             end)
 
+            local memoryUsage = 0
+            pcall(function()
+                memoryUsage = math.floor(StatsService:GetTotalMemoryUsageMb())
+            end)
+
             local time24h = os.date("%H:%M:%S")
             local playerCount = #Players:GetPlayers()
             local maxPlayers = Players.MaxPlayers
 
             debugSidebarText.Text = string.format(
-                "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
+                "⚡ <b>FPS:</b> %d\n" ..
+                "📶 <b>PING:</b> %dms\n" ..
+                "💾 <b>MEM:</b> %dMB\n" ..
                 "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
                 "🕒 <b>TIME:</b> %s",
-                currentFps, ping, playerCount, maxPlayers, time24h
+                currentFps, ping, memoryUsage, playerCount, maxPlayers, time24h
             )
         end
         task.wait(0.5)
