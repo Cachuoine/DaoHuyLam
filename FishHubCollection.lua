@@ -1,256 +1,265 @@
---[[
-    FishHub - Combined Script (Loading -> GetKey UI -> CheckGame)
-    Theme: Blue-Purple Gradient with transparency
-]]
-
+-- ==========================================
+-- SCRIPT 1: LOADING & GET KEY FISHHUB (Auto-Login & Modern UI)
+-- ==========================================
 local CoreGui = game:GetService("CoreGui")
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
-local localPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
 
-if CoreGui:FindFirstChild("FishHub_System") then
-    CoreGui.FishHub_System:Destroy()
+local FirebaseURL = "https://fishhub-35d18-default-rtdb.firebaseio.com/"
+local CheckGameURL = "https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/CheckGame.lua"
+local GetKeyURL = "https://fishhub-online.netlify.app/"
+local AdminKey = "DHL22052009"
+
+-- Xóa UI cũ nếu có
+if CoreGui:FindFirstChild("FishHubLoader") then
+    CoreGui.FishHubLoader:Destroy()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "FishHub_System"
+ScreenGui.Name = "FishHubLoader"
 ScreenGui.Parent = CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-local Blur = Instance.new("BlurEffect")
-Blur.Size = 0
-Blur.Parent = game:GetService("Lighting")
-TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 15}):Play()
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 420, 0, 280)
+MainFrame.Position = UDim2.new(0.5, -210, 0.5, -140)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 10, 30)
+MainFrame.BackgroundTransparency = 0.2
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
 
---------------------------------------------------------------------------------
--- HÀM LOAD SCRIPT CHÍNH (SAU KHI XÁC THỰC)
---------------------------------------------------------------------------------
-local function loadMainScript()
-    task.spawn(function()
-        local success, result = pcall(function()
-            return game:HttpGet("https://raw.githubusercontent.com/Cachuoine/DaoHuyLam/refs/heads/main/CheckGame.lua")
-        end)
-        if success and result then
-            local fn, err = loadstring(result)
-            if fn then
-                pcall(fn)
-            else
-                warn("Loadstring error: " .. tostring(err))
-            end
-        else
-            warn("Failed to fetch CheckGame.lua")
-        end
-    end)
-end
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 16)
+MainCorner.Parent = MainFrame
 
---------------------------------------------------------------------------------
--- GIAO DIỆN GETKEY UI (NHẬP KEY ĐỂ VƯỢT QUA)
---------------------------------------------------------------------------------
-local function createGetKeyUI()
-    local GetKeyFrame = Instance.new("Frame")
-    GetKeyFrame.Name = "GetKeyFrame"
-    GetKeyFrame.Size = UDim2.new(0, 420, 0, 260)
-    GetKeyFrame.Position = UDim2.new(0.5, -210, 0.5, -130)
-    GetKeyFrame.BackgroundColor3 = Color3.fromRGB(25, 18, 45)
-    GetKeyFrame.BackgroundTransparency = 0.15
-    GetKeyFrame.BorderSizePixel = 0
-    GetKeyFrame.Parent = ScreenGui
-    
-    local GetKeyCorner = Instance.new("UICorner")
-    GetKeyCorner.CornerRadius = UDim.new(0, 16)
-    GetKeyCorner.Parent = GetKeyFrame
-    
-    local GetKeyStroke = Instance.new("UIStroke")
-    GetKeyStroke.Color = Color3.fromRGB(140, 90, 255)
-    GetKeyStroke.Thickness = 2
-    GetKeyStroke.Parent = GetKeyFrame
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(0, 229, 255)
+MainStroke.Thickness = 2
+MainStroke.Parent = MainFrame
 
-    local CloseBtn = Instance.new("TextButton")
-    CloseBtn.Size = UDim2.new(0, 30, 0, 30)
-    CloseBtn.Position = UDim2.new(1, -38, 0, 8)
-    CloseBtn.BackgroundColor3 = Color3.fromRGB(50, 35, 80)
-    CloseBtn.BackgroundTransparency = 0.2
-    CloseBtn.Text = "×"
-    CloseBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
-    CloseBtn.TextSize = 14
-    CloseBtn.Font = Enum.Font.GothamBold
-    CloseBtn.Parent = GetKeyFrame
-    
-    local CloseCorner = Instance.new("UICorner")
-    CloseCorner.CornerRadius = UDim.new(0, 8)
-    CloseCorner.Parent = CloseBtn
-    
-    CloseBtn.MouseButton1Click:Connect(function()
-        local tw = TweenService:Create(GetKeyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
-        tw:Play()
-        tw.Completed:Wait()
-        if Blur and Blur.Parent then Blur:Destroy() end
-        if ScreenGui and ScreenGui.Parent then ScreenGui:Destroy() end
-    end)
+-- Nút đóng UI (Dấu nhân ×)
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -38, 0, 10)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(30, 20, 55)
+CloseBtn.BackgroundTransparency = 0.3
+CloseBtn.Text = "×"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+CloseBtn.TextSize = 22
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Parent = MainFrame
 
-    local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, 0, 0, 50)
-    Title.Position = UDim2.new(0, 0, 0, 10)
-    Title.BackgroundTransparency = 1
-    Title.Text = "FishHub Key Verification"
-    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Title.TextSize = 20
-    Title.Font = Enum.Font.GothamBold
-    Title.Parent = GetKeyFrame
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 8)
+CloseCorner.Parent = CloseBtn
 
-    local LinkBtn = Instance.new("TextButton")
-    LinkBtn.Size = UDim2.new(0, 360, 0, 35)
-    LinkBtn.Position = UDim2.new(0.5, -180, 0, 70)
-    LinkBtn.BackgroundColor3 = Color3.fromRGB(65, 40, 120)
-    LinkBtn.BackgroundTransparency = 0.2
-    LinkBtn.Text = "Get Key from Website"
-    LinkBtn.TextColor3 = Color3.fromRGB(200, 180, 255)
-    LinkBtn.TextSize = 14
-    LinkBtn.Font = Enum.Font.GothamMedium
-    LinkBtn.Parent = GetKeyFrame
-    
-    local LinkCorner = Instance.new("UICorner")
-    LinkCorner.CornerRadius = UDim.new(0, 8)
-    LinkCorner.Parent = LinkBtn
-    
-    LinkBtn.MouseButton1Click:Connect(function()
-        setclipboard("https://fishhub-online.netlify.app/")
-        LinkBtn.Text = "Copied GetKey URL to Clipboard!"
-        task.wait(1.5)
-        LinkBtn.Text = "Get Key from Website"
-    end)
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
 
-    local KeyInput = Instance.new("TextBox")
-    KeyInput.Size = UDim2.new(0, 360, 0, 45)
-    KeyInput.Position = UDim2.new(0.5, -180, 0, 120)
-    KeyInput.BackgroundColor3 = Color3.fromRGB(35, 25, 60)
-    KeyInput.BackgroundTransparency = 0.2
-    KeyInput.PlaceholderText = "Paste access key here"
-    KeyInput.Text = ""
-    KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-    KeyInput.PlaceholderColor3 = Color3.fromRGB(150, 130, 190)
-    KeyInput.TextSize = 14
-    KeyInput.Font = Enum.Font.Gotham
-    KeyInput.Parent = GetKeyFrame
-    
-    local InputCorner = Instance.new("UICorner")
-    InputCorner.CornerRadius = UDim.new(0, 8)
-    InputCorner.Parent = KeyInput
-
-    local SubmitBtn = Instance.new("TextButton")
-    SubmitBtn.Size = UDim2.new(0, 360, 0, 40)
-    SubmitBtn.Position = UDim2.new(0.5, -180, 0, 185)
-    SubmitBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 200)
-    SubmitBtn.BackgroundTransparency = 0.1
-    SubmitBtn.Text = "Verify Key"
-    SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    SubmitBtn.TextSize = 15
-    SubmitBtn.Font = Enum.Font.GothamBold
-    SubmitBtn.Parent = GetKeyFrame
-    
-    local SubmitCorner = Instance.new("UICorner")
-    SubmitCorner.CornerRadius = UDim.new(0, 8)
-    SubmitCorner.Parent = SubmitBtn
-
-    -- PHẦN XỬ LÝ KIỂM TRA KEY KHI NHẤN NÚT
-    SubmitBtn.MouseButton1Click:Connect(function()
-        local enteredKey = KeyInput.Text
-        if enteredKey == "" then
-            SubmitBtn.Text = "Please enter a key!"
-            task.wait(1.5)
-            SubmitBtn.Text = "Verify Key"
-            return
-        end
-
-        SubmitBtn.Text = "Checking..."
-        
-        -- Kiểm tra key trên Firebase Realtime Database
-        task.spawn(function()
-            local success, res = pcall(function()
-                return game:HttpGet("https://fishhubnew-default-rtdb.firebaseio.com/keys/" .. enteredKey .. ".json")
-            end)
-
-            if success and res and res ~= "null" then
-                SubmitBtn.Text = "Success!"
-                task.wait(0.4)
-                
-                local tw = TweenService:Create(GetKeyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
-                tw:Play()
-                tw.Completed:Wait()
-                
-                if Blur and Blur.Parent then Blur:Destroy() end
-                if ScreenGui and ScreenGui.Parent then ScreenGui:Destroy() end
-                
-                loadMainScript()
-            else
-                SubmitBtn.Text = "Invalid Key!"
-                task.wait(1.5)
-                SubmitBtn.Text = "Verify Key"
-            end
-        end)
-    end)
-end
-
---------------------------------------------------------------------------------
--- PHẦN 1: LOADING UI
---------------------------------------------------------------------------------
-local LoadingFrame = Instance.new("Frame")
-LoadingFrame.Name = "LoadingFrame"
-LoadingFrame.Size = UDim2.new(0, 360, 0, 220)
-LoadingFrame.Position = UDim2.new(0.5, -180, 0.5, -110)
-LoadingFrame.BackgroundColor3 = Color3.fromRGB(20, 15, 35)
-LoadingFrame.BackgroundTransparency = 0.15
-LoadingFrame.BorderSizePixel = 0
-LoadingFrame.Parent = ScreenGui
-
-local LoadingCorner = Instance.new("UICorner")
-LoadingCorner.CornerRadius = UDim.new(0, 16)
-LoadingCorner.Parent = LoadingFrame
-
-local LoadingStroke = Instance.new("UIStroke")
-LoadingStroke.Color = Color3.fromRGB(120, 80, 220)
-LoadingStroke.Thickness = 2
-LoadingStroke.Parent = LoadingFrame
-
+-- Móc neo chính giữa trang trí
 local AnchorIcon = Instance.new("TextLabel")
-AnchorIcon.Size = UDim2.new(0, 60, 0, 60)
-AnchorIcon.Position = UDim2.new(0.5, -30, 0.25, -30)
+AnchorIcon.Size = UDim2.new(0, 50, 0, 50)
+AnchorIcon.Position = UDim2.new(0.5, -25, 0, 15)
 AnchorIcon.BackgroundTransparency = 1
 AnchorIcon.Text = "⚓"
-AnchorIcon.TextSize = 40
-AnchorIcon.Parent = LoadingFrame
+AnchorIcon.TextColor3 = Color3.fromRGB(0, 229, 255)
+AnchorIcon.TextSize = 28
+AnchorIcon.Font = Enum.Font.GothamBold
+AnchorIcon.Parent = MainFrame
 
-local LoadingText = Instance.new("TextLabel")
-LoadingText.Size = UDim2.new(1, -40, 0, 40)
-LoadingText.Position = UDim2.new(0, 20, 0.65, 0)
-LoadingText.BackgroundTransparency = 1
-LoadingText.TextColor3 = Color3.fromRGB(220, 200, 255)
-LoadingText.TextSize = 16
-LoadingText.Font = Enum.Font.GothamBold
-LoadingText.Text = "Initializing FishHub System..."
-LoadingText.Parent = LoadingFrame
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Position = UDim2.new(0, 0, 0, 68)
+Title.BackgroundTransparency = 1
+Title.Text = "FISHHUB SYSTEM"
+Title.TextColor3 = Color3.fromRGB(200, 240, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.Parent = MainFrame
 
-local function finishLoadingAndShowGetKey()
-    local shrinkTween = TweenService:Create(LoadingFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0,0,0,0), Position = UDim2.new(0.5,0,0.5,0)})
-    shrinkTween:Play()
-    shrinkTween.Completed:Wait()
-    LoadingFrame:Destroy()
+-- Trạng thái chữ nằm phía trên các nút
+local StatusText = Instance.new("TextLabel")
+StatusText.Size = UDim2.new(1, 0, 0, 25)
+StatusText.Position = UDim2.new(0, 0, 0, 105)
+StatusText.BackgroundTransparency = 1
+StatusText.Text = "Initializing system..."
+StatusText.TextColor3 = Color3.fromRGB(0, 229, 255)
+StatusText.Font = Enum.Font.GothamMedium
+StatusText.TextSize = 13
+StatusText.Parent = MainFrame
+
+-- Khung Get Key
+local KeyBox = Instance.new("TextBox")
+KeyBox.Size = UDim2.new(0.85, 0, 0, 42)
+KeyBox.Position = UDim2.new(0.075, 0, 0, 138)
+KeyBox.BackgroundColor3 = Color3.fromRGB(20, 14, 38)
+KeyBox.BackgroundTransparency = 0.2
+KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyBox.PlaceholderColor3 = Color3.fromRGB(130, 160, 200)
+KeyBox.PlaceholderText = "Enter your key here..."
+KeyBox.Font = Enum.Font.Gotham
+KeyBox.TextSize = 14
+KeyBox.Text = ""
+KeyBox.Visible = false
+KeyBox.Parent = MainFrame
+
+local KeyBoxCorner = Instance.new("UICorner")
+KeyBoxCorner.CornerRadius = UDim.new(0, 10)
+KeyBoxCorner.Parent = KeyBox
+
+local KeyBoxStroke = Instance.new("UIStroke")
+KeyBoxStroke.Color = Color3.fromRGB(0, 180, 255)
+KeyBoxStroke.Transparency = 0.3
+KeyBoxStroke.Thickness = 1.5
+KeyBoxStroke.Parent = KeyBox
+
+local BtnCheck = Instance.new("TextButton")
+BtnCheck.Size = UDim2.new(0.41, 0, 0, 40)
+BtnCheck.Position = UDim2.new(0.075, 0, 0, 195)
+BtnCheck.BackgroundColor3 = Color3.fromRGB(0, 180, 100)
+BtnCheck.BackgroundTransparency = 0.1
+BtnCheck.TextColor3 = Color3.new(1,1,1)
+BtnCheck.Text = "VERIFY"
+BtnCheck.Font = Enum.Font.GothamBold
+BtnCheck.TextSize = 14
+BtnCheck.Visible = false
+BtnCheck.Parent = MainFrame
+
+local BtnCheckCorner = Instance.new("UICorner")
+BtnCheckCorner.CornerRadius = UDim.new(0, 10)
+BtnCheckCorner.Parent = BtnCheck
+
+local BtnCheckStroke = Instance.new("UIStroke")
+BtnCheckStroke.Color = Color3.fromRGB(100, 255, 180)
+BtnCheckStroke.Transparency = 0.4
+BtnCheckStroke.Thickness = 1.5
+BtnCheckStroke.Parent = BtnCheck
+
+local BtnGet = Instance.new("TextButton")
+BtnGet.Size = UDim2.new(0.41, 0, 0, 40)
+BtnGet.Position = UDim2.new(0.515, 0, 0, 195)
+BtnGet.BackgroundColor3 = Color3.fromRGB(0, 130, 230)
+BtnGet.BackgroundTransparency = 0.1
+BtnGet.TextColor3 = Color3.new(1,1,1)
+BtnGet.Text = "GET KEY"
+BtnGet.Font = Enum.Font.GothamBold
+BtnGet.TextSize = 14
+BtnGet.Visible = false
+BtnGet.Parent = MainFrame
+
+local BtnGetCorner = Instance.new("UICorner")
+BtnGetCorner.CornerRadius = UDim.new(0, 10)
+BtnGetCorner.Parent = BtnGet
+
+local BtnGetStroke = Instance.new("UIStroke")
+BtnGetStroke.Color = Color3.fromRGB(100, 200, 255)
+BtnGetStroke.Transparency = 0.4
+BtnGetStroke.Thickness = 1.5
+BtnGetStroke.Parent = BtnGet
+
+-- Hiệu ứng quay móc neo
+task.spawn(function()
+    local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local tween = TweenService:Create(AnchorIcon, tweenInfo, {Rotation = 360})
+    tween:Play()
+end)
+
+-- Hàm lưu và vào game
+local function SaveAndLoad(key)
+    StatusText.Text = "Valid Key! Launching..."
+    StatusText.TextColor3 = Color3.fromRGB(100, 255, 150)
     
-    createGetKeyUI()
+    local dataToSave = HttpService:JSONEncode({key = key})
+    pcall(function()
+        writefile("FishHub_Key.json", dataToSave)
+    end)
+    
+    task.wait(1)
+    ScreenGui:Destroy()
+    loadstring(game:HttpGet(CheckGameURL))()
 end
 
+-- Kiểm tra xem đã có file key lưu từ trước hay chưa để tự động vào luôn
 task.spawn(function()
-    local tw = TweenService:Create(AnchorIcon, TweenInfo.new(1, Enum.EasingStyle.Linear), {Rotation = 360})
-    tw:Play()
-    tw.Completed:Wait()
+    task.wait(0.8)
+    StatusText.Text = "Checking saved session..."
     
-    LoadingText.Text = "Loading security components..."
-    task.wait(0.7)
-    LoadingText.Text = "Verifying environment..."
-    task.wait(0.7)
-    LoadingText.Text = "Ready!"
-    task.wait(0.4)
+    local hasValidSavedKey = false
+    local savedKey = ""
     
-    finishLoadingAndShowGetKey()
+    if pcall(readfile, "FishHub_Key.json") then
+        local success, content = pcall(readfile, "FishHub_Key.json")
+        if success and content ~= "" then
+            local decSuccess, decData = pcall(function() return HttpService:JSONDecode(content) end)
+            if decSuccess and decData and decData.key then
+                savedKey = decData.key
+                if savedKey == AdminKey then
+                    hasValidSavedKey = true
+                else
+                    local checkUrl = FirebaseURL .. "keys/" .. savedKey .. ".json"
+                    local getSuccess, response = pcall(function() return game:HttpGet(checkUrl) end)
+                    if getSuccess and response ~= "null" then
+                        local data = HttpService:JSONDecode(response)
+                        local currentTime = os.time()
+                        local createdAtSec = math.floor(data.createdAt / 1000)
+                        if (currentTime - createdAtSec) <= 86400 then
+                            hasValidSavedKey = true
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    if hasValidSavedKey then
+        SaveAndLoad(savedKey)
+    else
+        StatusText.Text = "Please authenticate Key!"
+        KeyBox.Visible = true
+        BtnCheck.Visible = true
+        BtnGet.Visible = true
+    end
+end)
+
+BtnGet.MouseButton1Click:Connect(function()
+    setclipboard(GetKeyURL)
+    StatusText.Text = "Key link copied!"
+    StatusText.TextColor3 = Color3.fromRGB(255, 220, 100)
+end)
+
+BtnCheck.MouseButton1Click:Connect(function()
+    local input = KeyBox.Text
+    if input == "" then
+        StatusText.Text = "Please enter a key!"
+        StatusText.TextColor3 = Color3.fromRGB(255, 100, 100)
+        return
+    end
+
+    StatusText.Text = "Checking..."
+    StatusText.TextColor3 = Color3.fromRGB(0, 229, 255)
+
+    if input == AdminKey then
+        SaveAndLoad(input)
+        return
+    end
+
+    local checkUrl = FirebaseURL .. "keys/" .. input .. ".json"
+    local success, response = pcall(function() return game:HttpGet(checkUrl) end)
+    
+    if success and response ~= "null" then
+        local data = HttpService:JSONDecode(response)
+        local currentTime = os.time()
+        local createdAtSec = math.floor(data.createdAt / 1000)
+        
+        if (currentTime - createdAtSec) <= 86400 then
+            SaveAndLoad(input)
+        else
+            StatusText.Text = "Key has expired!"
+            StatusText.TextColor3 = Color3.fromRGB(255, 100, 100)
+        end
+    else
+        StatusText.Text = "Key doesn't exist or incorrect!"
+        StatusText.TextColor3 = Color3.fromRGB(255, 100, 100)
+    end
 end)
