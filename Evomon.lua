@@ -97,8 +97,9 @@ local Config = {
     ShowDebug = true
 }
 
+-- ĐÃ FIX: Đổi UseRainbowText thành false để nhận màu bạn chọn trong Setting
 local MarqueeExtraConfig = {
-    UseRainbowText = true,      
+    UseRainbowText = false,      
     RainbowSpeed = 0.002,       
     EnableBreathing = true,     
 }
@@ -1434,7 +1435,7 @@ debugSidebarText.TextYAlignment = Enum.TextYAlignment.Top
 debugSidebarText.RichText = true
 
 ----------------------------------------------------------------------
--- KEY STATUS (CHỈNH SỬA THÊM ĐẾM NGƯỢC THỜI GIAN THỰC Ở ĐÂY)
+-- KEY STATUS
 ----------------------------------------------------------------------
 keyStatusSidebarFrame = Instance.new("Frame")
 keyStatusSidebarFrame.Name = "KeyStatusSidebar"
@@ -1511,35 +1512,32 @@ keyActiveLabel.TextColor3 = Color3.fromRGB(50, 230, 80)
 keyActiveLabel.Text = "LOADING..."
 keyActiveLabel.TextXAlignment = Enum.TextXAlignment.Right
 
--- LOGIC ĐẾM NGƯỢC THỜI GIAN THỰC (Được thêm mới)
 task.spawn(function()
     if SavedKey == "DHL22052009" then
         keyActiveLabel.Text = "LIFETIME"
-        keyActiveLabel.TextColor3 = Color3.fromRGB(255, 215, 0) -- Màu vàng cho Admin
+        keyActiveLabel.TextColor3 = Color3.fromRGB(255, 215, 0) 
     elseif SavedKey ~= "" then
-        -- Lấy thời gian lúc tạo trên DB để đếm ngược
         local url = "https://fishhub-35d18-default-rtdb.firebaseio.com/keys/" .. SavedKey .. ".json"
         local success, response = pcall(function() return game:HttpGet(url) end)
         
         if success and response ~= "null" then
             local data = HttpService:JSONDecode(response)
             local createdAtSec = math.floor(data.createdAt / 1000)
-            local expireTime = createdAtSec + 86400 -- Thêm 24 tiếng (86400 giây)
+            local expireTime = createdAtSec + 86400 
             
             while gui and gui.Parent do
                 local currentTime = os.time()
                 local timeRemaining = expireTime - currentTime
                 
                 if timeRemaining > 0 then
-                    -- Tính ra giờ, phút, giây
                     local h = math.floor(timeRemaining / 3600)
                     local m = math.floor((timeRemaining % 3600) / 60)
                     local s = timeRemaining % 60
                     keyActiveLabel.Text = string.format("%02d:%02d:%02d", h, m, s)
-                    keyActiveLabel.TextColor3 = Color3.fromRGB(50, 230, 80) -- Xanh lá
+                    keyActiveLabel.TextColor3 = Color3.fromRGB(50, 230, 80) 
                 else
                     keyActiveLabel.Text = "EXPIRED!"
-                    keyActiveLabel.TextColor3 = Color3.fromRGB(230, 50, 50) -- Đỏ báo hết hạn
+                    keyActiveLabel.TextColor3 = Color3.fromRGB(230, 50, 50) 
                     break
                 end
                 task.wait(1)
