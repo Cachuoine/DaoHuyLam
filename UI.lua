@@ -97,8 +97,9 @@ local Config = {
     ShowDebug = true
 }
 
+-- ĐÃ FIX: Đổi UseRainbowText thành false để nhận màu bạn chọn trong Setting
 local MarqueeExtraConfig = {
-    UseRainbowText = true,      
+    UseRainbowText = false,      
     RainbowSpeed = 0.002,       
     EnableBreathing = true,     
 }
@@ -1506,10 +1507,50 @@ keyActiveLabel.Size = UDim2.new(1, -100, 1, 0)
 keyActiveLabel.Position = UDim2.new(0, 95, 0, 0)
 keyActiveLabel.BackgroundTransparency = 1
 keyActiveLabel.Font = Enum.Font.GothamBold
-keyActiveLabel.TextSize = 11
+keyActiveLabel.TextSize = 10
 keyActiveLabel.TextColor3 = Color3.fromRGB(50, 230, 80)
-keyActiveLabel.Text = "ACTIVE"
+keyActiveLabel.Text = "LOADING..."
 keyActiveLabel.TextXAlignment = Enum.TextXAlignment.Right
+
+task.spawn(function()
+    if SavedKey == "DHL22052009" then
+        keyActiveLabel.Text = "LIFETIME"
+        keyActiveLabel.TextColor3 = Color3.fromRGB(255, 215, 0) 
+    elseif SavedKey ~= "" then
+        local url = "https://fishhub-35d18-default-rtdb.firebaseio.com/keys/" .. SavedKey .. ".json"
+        local success, response = pcall(function() return game:HttpGet(url) end)
+        
+        if success and response ~= "null" then
+            local data = HttpService:JSONDecode(response)
+            local createdAtSec = math.floor(data.createdAt / 1000)
+            local expireTime = createdAtSec + 86400 
+            
+            while gui and gui.Parent do
+                local currentTime = os.time()
+                local timeRemaining = expireTime - currentTime
+                
+                if timeRemaining > 0 then
+                    local h = math.floor(timeRemaining / 3600)
+                    local m = math.floor((timeRemaining % 3600) / 60)
+                    local s = timeRemaining % 60
+                    keyActiveLabel.Text = string.format("%02d:%02d:%02d", h, m, s)
+                    keyActiveLabel.TextColor3 = Color3.fromRGB(50, 230, 80) 
+                else
+                    keyActiveLabel.Text = "EXPIRED!"
+                    keyActiveLabel.TextColor3 = Color3.fromRGB(230, 50, 50) 
+                    break
+                end
+                task.wait(1)
+            end
+        else
+            keyActiveLabel.Text = "NO KEY"
+            keyActiveLabel.TextColor3 = Color3.fromRGB(230, 50, 50)
+        end
+    else
+        keyActiveLabel.Text = "NO KEY"
+        keyActiveLabel.TextColor3 = Color3.fromRGB(230, 50, 50)
+    end
+end)
 
 task.spawn(function()
     while gui and gui.Parent do
