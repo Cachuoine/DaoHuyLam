@@ -1,5 +1,6 @@
 -- [ĐÃ CẬP NHẬT] Giao diện FishHub (UI.lua hoàn chỉnh)
 -- Đã xóa cài đặt footer text colors và cố định màu dòng chạy: User (Xanh lam), Executor (Tím), CRE (Đỏ).
+-- Đã xóa các script Kaitun ở phần Home theo yêu cầu.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -490,7 +491,7 @@ local function ClearContent()
 end
 
 ----------------------------------------------------------------------
--- PHẦN TRANG CHỦ (GIỮ NGUYÊN HOÀN TOÀN CÁC SCRIPT BLOX FRUITS)
+-- PHẦN TRANG CHỦ (ĐÃ XÓA TOÀN BỘ CÁC SCRIPT KAITUN)
 ----------------------------------------------------------------------
 OpenHome = function()
     ClearContent()
@@ -541,10 +542,6 @@ OpenHome = function()
         {
             TabName = "🔥 All Scripts",
             Scripts = {
-                { Name = "Banana Cat Hub - Kaitun Script", Url = "https://raw.githubusercontent.com/x2RunE/paid_script_cracked/refs/heads/main/banana-cat/kaitunLoader.lua" },
-                { Name = "Banana Cat Hub - Kaitun V4", Url = "https://raw.githubusercontent.com/x2RunE/Immortal/refs/heads/main/BananaCat-KaitunV4.lua" },
-                { Name = "Banana Cat Hub - Kaitun Dungeon", Url = "https://raw.githubusercontent.com/x2RunE/Immortal/refs/heads/main/BananaCat-KaitunDungeon.lua" },
-                { Name = "Banana Cat Hub - Kaitun Levi", Url = 'repeat wait() until game:IsLoaded() and game.Players.LocalPlayer\nloadstring(game:HttpGet("https://raw.githubusercontent.com/x2RunE/paid_script_cracked/refs/heads/main/banana-cat/kaitunLeviLoader.lua"))()' },
                 { Name = "Anime Mod", Url = "https://raw.githubusercontent.com/gatinho1dev/Animemodhub/main/Animemodhub" },
                 { Name = "Anime Mod Menu", Url = "https://raw.githubusercontent.com/gatinho1dev/Anime-mod-menu-hub-/refs/heads/main/Animemodmenu" },
                 { Name = "Apple Hub Loader", Url = "https://raw.githubusercontent.com/AlexHerrySeek/AppleHub/refs/heads/main/loader/main.lua" },
@@ -557,15 +554,6 @@ OpenHome = function()
                 { Name = "Vxeze Hub Free Beta", Url = "https://raw.githubusercontent.com/Dex-Bear/VxezeHubLoader/refs/heads/main/FreeBeta.lua" },
                 { Name = "Onion13 Hub (PVP)", Url = "https://api.luarmor.net/files/v4/loaders/cc815ef92aaf3ed41a37aa4d87cd93ff.lua" },
                 { Name = "Realkid Hub", Url = "https://raw.githubusercontent.com/realkid-hub/bloxfruits/main/loader.lua" }
-            }
-        },
-        {
-            TabName = "🤖 Kaitun Hubs",
-            Scripts = {
-                { Name = "Banana Cat Hub - Kaitun Script", Url = "https://raw.githubusercontent.com/x2RunE/paid_script_cracked/refs/heads/main/banana-cat/kaitunLoader.lua" },
-                { Name = "Banana Cat Hub - Kaitun V4", Url = "https://raw.githubusercontent.com/x2RunE/Immortal/refs/heads/main/BananaCat-KaitunV4.lua" },
-                { Name = "Banana Cat Hub - Kaitun Dungeon", Url = "https://raw.githubusercontent.com/x2RunE/Immortal/refs/heads/main/BananaCat-KaitunDungeon.lua" },
-                { Name = "Banana Cat Hub - Kaitun Levi", Url = 'repeat wait() until game:IsLoaded() and game.Players.LocalPlayer\nloadstring(game:HttpGet("https://raw.githubusercontent.com/x2RunE/paid_script_cracked/refs/heads/main/banana-cat/kaitunLeviLoader.lua"))()' }
             }
         },
         {
