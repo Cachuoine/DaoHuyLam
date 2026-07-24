@@ -57,12 +57,14 @@ local CurrentPlaceId = game.PlaceId
 -- ĐỌC DỮ LIỆU KEY TỪ PHẦN GETKEY (FishHub_Key.json)
 ----------------------------------------------------------------------
 local SavedKey = ""
+local KeyExpirationTimestamp = 0
 
 if readfile and isfile and isfile("FishHub_Key.json") then
     pcall(function()
         local data = HttpService:JSONDecode(readfile("FishHub_Key.json"))
         if data then
             SavedKey = data.key or ""
+            KeyExpirationTimestamp = data.expiry or 0
         end
     end)
 end
@@ -97,9 +99,8 @@ local Config = {
     ShowDebug = true
 }
 
--- ĐÃ FIX: Đổi UseRainbowText thành false để nhận màu bạn chọn trong Setting
 local MarqueeExtraConfig = {
-    UseRainbowText = false,      
+    UseRainbowText = true,      
     RainbowSpeed = 0.002,       
     EnableBreathing = true,     
 }
@@ -516,7 +517,144 @@ local function ClearContent()
     end
 end
 
-OpenHome = function() ClearContent() end
+----------------------------------------------------------------------
+-- PHẦN TRANG CHỦ (HOME) - TÍCH HỢP DANH SÁCH SCRIPT EVOMON
+----------------------------------------------------------------------
+OpenHome = function()
+    ClearContent()
+
+    local titleLbl = Instance.new("TextLabel")
+    titleLbl.Parent = pageContainer
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Position = UDim2.new(0, 15, 0, 10)
+    titleLbl.Size = UDim2.new(1, -30, 0, 25)
+    titleLbl.Font = Enum.Font.GothamBold
+    titleLbl.Text = "⚡ Evomon Script Collection"
+    titleLbl.TextSize = 18
+    titleLbl.TextColor3 = Color3.fromRGB(240, 240, 240)
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local scrollHolder = Instance.new("ScrollingFrame")
+    scrollHolder.Parent = pageContainer
+    scrollHolder.Position = UDim2.new(0, 15, 0, 40)
+    scrollHolder.Size = UDim2.new(1, -25, 1, -50)
+    scrollHolder.BackgroundTransparency = 1
+    scrollHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
+    scrollHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    scrollHolder.ScrollBarThickness = 3
+    scrollHolder.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 95)
+
+    local uiList = Instance.new("UIListLayout")
+    uiList.Parent = scrollHolder
+    uiList.SortOrder = Enum.SortOrder.LayoutOrder
+    uiList.Padding = UDim.new(0, 10)
+
+    local scriptList = {
+        { Name = "Poluted Team", Url = "https://api.luarmor.net/files/v4/loaders/349171199feeb2b561597b018bf12e5d.lua" },
+        { Name = "Skull Hub", Url = "https://hungquan99.site/v1/script/6b4c37bd-7fdc-4094-877a-fee2eda3515a" },
+        { Name = "Cyraa Hub", Url = "https://raw.githubusercontent.com/LynX99-9/komtolmmek2script/refs/heads/main/CyraaHub.lua" },
+        { Name = "Vxeze Hub Evomon", Url = "https://gist.githubusercontent.com/angeryy-tvy/9def5e4f9f594da721371d3fcfe76967/raw/Evomon-VxezeHub" },
+        { Name = "Ouroboros", Url = "https://raw.githubusercontent.com/joustingmatch/Ouroboros/main/loader.lua" },
+        { Name = "Nasi Rendang Evomon", Url = "https://raw.githubusercontent.com/JualNasiRendang/nasirendang-evomon/main/nasirendang-evomon.lua" },
+    }
+
+    for index, data in ipairs(scriptList) do
+        local btnCard = Instance.new("TextButton")
+        btnCard.Parent = scrollHolder
+        btnCard.Size = UDim2.new(1, -10, 0, 42)
+        btnCard.BackgroundColor3 = Config.BgCard
+        btnCard.BorderSizePixel = 0
+        btnCard.AutoButtonColor = false
+        btnCard.Text = ""
+        
+        Instance.new("UICorner", btnCard).CornerRadius = UDim.new(0, 8)
+
+        local cardStroke = Instance.new("UIStroke")
+        cardStroke.Parent = btnCard
+        cardStroke.Color = Config.BorderColor
+        cardStroke.Thickness = 1
+
+        local nameLbl = Instance.new("TextLabel")
+        nameLbl.Parent = btnCard
+        nameLbl.Position = UDim2.new(0, 12, 0, 0)
+        nameLbl.Size = UDim2.new(1, -120, 1, 0)
+        nameLbl.BackgroundTransparency = 1
+        nameLbl.Font = Enum.Font.GothamBold
+        nameLbl.Text = data.Name
+        nameLbl.TextSize = 13
+        nameLbl.TextColor3 = Color3.fromRGB(240, 240, 240)
+        nameLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+        local badge = Instance.new("Frame")
+        badge.Parent = btnCard
+        badge.Size = UDim2.new(0, 95, 0, 24)
+        badge.Position = UDim2.new(1, -105, 0.5, -12)
+        badge.BackgroundColor3 = Color3.fromRGB(20, 60, 35)
+        badge.BorderSizePixel = 0
+        Instance.new("UICorner", badge).CornerRadius = UDim.new(0, 6)
+
+        local circleGreen = Instance.new("Frame")
+        circleGreen.Parent = badge
+        circleGreen.Size = UDim2.new(0, 8, 0, 8)
+        circleGreen.Position = UDim2.new(0, 8, 0.5, -4)
+        circleGreen.BackgroundColor3 = Color3.fromRGB(50, 230, 80)
+        circleGreen.BorderSizePixel = 0
+        Instance.new("UICorner", circleGreen).CornerRadius = UDim.new(1, 0)
+
+        local badgeText = Instance.new("TextLabel")
+        badgeText.Parent = badge
+        badgeText.Size = UDim2.new(1, -18, 1, 0)
+        badgeText.Position = UDim2.new(0, 16, 0, 0)
+        badgeText.BackgroundTransparency = 1
+        badgeText.Font = Enum.Font.GothamBold
+        badgeText.Text = "WORKING"
+        badgeText.TextSize = 9
+        badgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        badgeText.TextXAlignment = Enum.TextXAlignment.Center
+
+        task.spawn(function()
+            while badge and badge.Parent do
+                TweenService:Create(circleGreen, TweenInfo.new(0.6), {BackgroundTransparency = 0.2}):Play()
+                task.wait(0.6)
+                TweenService:Create(circleGreen, TweenInfo.new(0.6), {BackgroundTransparency = 0.8}):Play()
+                task.wait(0.6)
+            end
+        end)
+
+        btnCard.MouseEnter:Connect(function()
+            TweenService:Create(btnCard, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+            }):Play()
+            TweenService:Create(cardStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                Color = Config.ThemeColor,
+                Thickness = 2
+            }):Play()
+        end)
+
+        btnCard.MouseLeave:Connect(function()
+            TweenService:Create(btnCard, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                BackgroundColor3 = Config.BgCard
+            }):Play()
+            TweenService:Create(cardStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                Color = Config.BorderColor,
+                Thickness = 1
+            }):Play()
+        end)
+
+        btnCard.MouseButton1Click:Connect(function()
+            TweenService:Create(btnCard, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(50, 60, 80)}):Play()
+            task.delay(0.1, function()
+                if btnCard and btnCard.Parent then
+                    TweenService:Create(btnCard, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 45)}):Play()
+                end
+            end)
+
+            pcall(function()
+                loadstring(game:HttpGet(data.Url))()
+            end)
+        end)
+    end
+end
 
 ----------------------------------------------------------------------
 -- PHẦN SUPPORT GAME
@@ -1408,8 +1546,8 @@ local SettingBtn = CreateSideButton("Setting", 110, "rbxassetid://99627454901549
 debugSidebarFrame = Instance.new("Frame")
 debugSidebarFrame.Name = "DebugSidebar"
 debugSidebarFrame.Parent = sidebar
-debugSidebarFrame.Size = UDim2.new(1, -10, 0, 74)
-debugSidebarFrame.Position = UDim2.new(0, 5, 1, -142)
+debugSidebarFrame.Size = UDim2.new(1, -10, 0, 112)
+debugSidebarFrame.Position = UDim2.new(0, 5, 1, -178)
 debugSidebarFrame.BackgroundColor3 = Config.BgCard
 debugSidebarFrame.BackgroundTransparency = 0
 debugSidebarFrame.BorderSizePixel = 0
@@ -1440,8 +1578,8 @@ debugSidebarText.RichText = true
 keyStatusSidebarFrame = Instance.new("Frame")
 keyStatusSidebarFrame.Name = "KeyStatusSidebar"
 keyStatusSidebarFrame.Parent = sidebar
-keyStatusSidebarFrame.Size = UDim2.new(1, -16, 0, 54)
-keyStatusSidebarFrame.Position = UDim2.new(0, 8, 1, -62)
+keyStatusSidebarFrame.Size = UDim2.new(1, -10, 0, 54)
+keyStatusSidebarFrame.Position = UDim2.new(0, 5, 1, -64)
 keyStatusSidebarFrame.BackgroundColor3 = Config.BgCard
 keyStatusSidebarFrame.BackgroundTransparency = 0
 keyStatusSidebarFrame.BorderSizePixel = 0
@@ -1583,15 +1721,22 @@ task.spawn(function()
                 ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue())
             end)
 
+            local memoryUsage = 0
+            pcall(function()
+                memoryUsage = math.floor(StatsService:GetTotalMemoryUsageMb())
+            end)
+
             local time24h = os.date("%H:%M:%S")
             local playerCount = #Players:GetPlayers()
             local maxPlayers = Players.MaxPlayers
 
             debugSidebarText.Text = string.format(
-                "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
+                "⚡ <b>FPS:</b> %d\n" ..
+                "📶 <b>PING:</b> %dms\n" ..
+                "💾 <b>MEM:</b> %dMB\n" ..
                 "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
                 "🕒 <b>TIME:</b> %s",
-                currentFps, ping, playerCount, maxPlayers, time24h
+                currentFps, ping, memoryUsage, playerCount, maxPlayers, time24h
             )
         end
         task.wait(0.5)
