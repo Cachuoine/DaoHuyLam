@@ -340,7 +340,7 @@ ToggleMain = function()
 end
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == Config.ToggleKey then
+    if input.KeyCode == Config.ToggleKey then
         ToggleMain()
     end
 end)
