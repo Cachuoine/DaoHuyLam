@@ -97,7 +97,6 @@ local Config = {
     ShowDebug = true
 }
 
--- ĐÃ FIX: Đổi UseRainbowText thành false để nhận màu bạn chọn trong Setting
 local MarqueeExtraConfig = {
     UseRainbowText = false,      
     RainbowSpeed = 0.002,       
@@ -131,7 +130,7 @@ local Translations = {
         ThemeTitle = "🎨 FishHub Theme",
         ThemeDesc = "Choose a custom color theme for FishHub UI.",
         DebugToggle = "📊 Debug Overlay",
-        DebugDesc = "Display FPS, Ping, Players, Time and Key Status.",
+        DebugDesc = "Display FPS, Ping, Memory, Players, Time and Key Status.",
 
         MarqueeUserTitle = "👤 User Text Color",
         MarqueeUserDesc = "Change text color for the User section.",
@@ -176,7 +175,7 @@ local Translations = {
         ThemeTitle = "🎨 Giao Diện Chủ Đề",
         ThemeDesc = "Chọn màu chủ đề độc đáo cho giao diện FishHub.",
         DebugToggle = "📊 Bảng Debug Thông Số",
-        DebugDesc = "Hiển thị FPS, Ping, Người chơi, Giờ và Key.",
+        DebugDesc = "Hiển thị FPS, Ping, Bộ nhớ, Người chơi, Giờ và Key.",
 
         MarqueeUserTitle = "👤 Màu Chữ Phần User",
         MarqueeUserDesc = "Đổi màu riêng cho phần tên User ở dòng chạy.",
@@ -1403,13 +1402,13 @@ local SupportBtn = CreateSideButton("Support", 64, "rbxassetid://86514728032684"
 local SettingBtn = CreateSideButton("Setting", 110, "rbxassetid://99627454901549")
 
 ----------------------------------------------------------------------
--- DEBUG OVERLAY
+-- DEBUG OVERLAY (Đã canh chỉnh đồng bộ lề ngang 5px)
 ----------------------------------------------------------------------
 debugSidebarFrame = Instance.new("Frame")
 debugSidebarFrame.Name = "DebugSidebar"
 debugSidebarFrame.Parent = sidebar
-debugSidebarFrame.Size = UDim2.new(1, -10, 0, 74)
-debugSidebarFrame.Position = UDim2.new(0, 5, 1, -142)
+debugSidebarFrame.Size = UDim2.new(1, -10, 0, 112)
+debugSidebarFrame.Position = UDim2.new(0, 5, 1, -178)
 debugSidebarFrame.BackgroundColor3 = Config.BgCard
 debugSidebarFrame.BackgroundTransparency = 0
 debugSidebarFrame.BorderSizePixel = 0
@@ -1435,13 +1434,13 @@ debugSidebarText.TextYAlignment = Enum.TextYAlignment.Top
 debugSidebarText.RichText = true
 
 ----------------------------------------------------------------------
--- KEY STATUS
+-- KEY STATUS (Đồng bộ lề chuẩn với Debug)
 ----------------------------------------------------------------------
 keyStatusSidebarFrame = Instance.new("Frame")
 keyStatusSidebarFrame.Name = "KeyStatusSidebar"
 keyStatusSidebarFrame.Parent = sidebar
-keyStatusSidebarFrame.Size = UDim2.new(1, -16, 0, 54)
-keyStatusSidebarFrame.Position = UDim2.new(0, 8, 1, -62)
+keyStatusSidebarFrame.Size = UDim2.new(1, -10, 0, 54)
+keyStatusSidebarFrame.Position = UDim2.new(0, 5, 1, -64)
 keyStatusSidebarFrame.BackgroundColor3 = Config.BgCard
 keyStatusSidebarFrame.BackgroundTransparency = 0
 keyStatusSidebarFrame.BorderSizePixel = 0
@@ -1583,15 +1582,22 @@ task.spawn(function()
                 ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue())
             end)
 
+            local memoryUsage = 0
+            pcall(function()
+                memoryUsage = math.floor(StatsService:GetTotalMemoryUsageMb())
+            end)
+
             local time24h = os.date("%H:%M:%S")
             local playerCount = #Players:GetPlayers()
             local maxPlayers = Players.MaxPlayers
 
             debugSidebarText.Text = string.format(
-                "⚡ <b>FPS:</b> %d | <b>PING:</b> %dms\n" ..
+                "⚡ <b>FPS:</b> %d\n" ..
+                "📶 <b>PING:</b> %dms\n" ..
+                "💾 <b>MEM:</b> %dMB\n" ..
                 "👥 <b>PLAYERS:</b> <font color='#FFDF00'>%d/%d</font>\n" ..
                 "🕒 <b>TIME:</b> %s",
-                currentFps, ping, playerCount, maxPlayers, time24h
+                currentFps, ping, memoryUsage, playerCount, maxPlayers, time24h
             )
         end
         task.wait(0.5)
